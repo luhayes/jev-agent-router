@@ -1,0 +1,6 @@
+# Merge into Codex config only after local installation and explicit approval.
+[mcp_servers.jev]
+command = "jev-route-mcp"
+args = []
+env_vars = ["TYPESAFE_API_KEY", "OPENAI_API_KEY", "JEV_FALLBACK_MODEL"]
+tool_timeout_sec = 60

@@ -1,0 +1,5 @@
+{
+  "mcpServers": {
+    "jev": {"type": "stdio", "command": "jev-route-mcp", "args": []}
+  }
+}

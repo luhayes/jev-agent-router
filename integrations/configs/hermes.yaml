@@ -1,0 +1,11 @@
+# Merge via Hermes configuration tooling; this file does not install anything.
+# Hermes filters subprocess environments. Explicitly forward required credentials
+# through its private configuration/secret mechanism; see integrations/README.md.
+mcp_servers:
+  jev:
+    command: jev-route-mcp
+    args: []
+    timeout: 60
+    connect_timeout: 20
+    env:
+      JEV_FALLBACK_MODEL: gpt-4.1-mini
