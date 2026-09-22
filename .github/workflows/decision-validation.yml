@@ -1,0 +1,63 @@
+name: Decision validation (offline)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'examples/**'
+      - 'docs/**'
+      - 'benchmarks/faults/**'
+      - 'pyproject.toml'
+      - '.github/workflows/decision-validation.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'examples/**'
+      - 'docs/**'
+      - 'benchmarks/faults/**'
+      - 'pyproject.toml'
+      - '.github/workflows/decision-validation.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+      - name: Install test dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Run tests
+        run: python -m pytest -q
+      - name: Verify custom data import
+        run: python -m jev_agent_router.benchmark import --source docs/workload.example.json --output benchmark-results/import-check
+      - name: Run isolated decision demo
+        run: python -m jev_agent_router.benchmark demo --output benchmark-results/demo
+      - name: Run fault experiment
+        run: python -m jev_agent_router.benchmark faults --output benchmark-results/faults --repeats 3
+      - name: Publish fault summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f benchmark-results/faults/report.md ]]; then
+            cat benchmark-results/faults/report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload synthetic reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: decision-validation-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: ignore
+          path: |
+            benchmark-results/demo/**/*report*
+            benchmark-results/demo/**/policy.json
+            benchmark-results/faults/report.*

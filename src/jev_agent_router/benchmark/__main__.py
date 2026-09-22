@@ -11,6 +11,7 @@ import httpx
 from jev_agent_router import RouterError
 from jev_agent_router.llm import PROVIDERS
 from .data import digest, prepare, write_json
+from .custom import import_dataset
 from .report import DEFAULT_THRESHOLDS, analyze
 from .runner import collect
 
@@ -107,9 +108,15 @@ async def demo(output):
 
 def parser():
     root = argparse.ArgumentParser(
-        description="Local BANKING77 benchmark; no telemetry, no automatic paid calls."
+        description="Local model decision evaluation; no telemetry, no automatic paid calls."
     )
     sub = root.add_subparsers(dest="command", required=True)
+    custom = sub.add_parser("import", help="Validate your pre-split labeled JSON; offline, no upload")
+    custom.add_argument("--source", required=True, type=Path)
+    custom.add_argument("--output", required=True, type=Path)
+    faults = sub.add_parser("faults", help="Offline fault injection; no API keys or paid calls")
+    faults.add_argument("--output", required=True, type=Path)
+    faults.add_argument("--repeats", type=int, default=3)
     prepare_parser = sub.add_parser("prepare", help="Download pinned public CSVs or use local files")
     prepare_parser.add_argument("--output", required=True, type=Path)
     prepare_parser.add_argument("--data-dir", type=Path)
@@ -160,7 +167,15 @@ def main(argv=None):
     args = vars(parser().parse_args(argv))
     command = args.pop("command")
     try:
-        if command == "prepare":
+        if command == "faults":
+            from .faults import run_experiment
+            result = asyncio.run(run_experiment(**args))
+            print(f"Offline fault checks: {result['checks_passed']}/{result['checks_total']}")
+            return 0 if result["passed"] else 1
+        elif command == "import":
+            result = import_dataset(**args)
+            print(json.dumps(result["splits"], indent=2))
+        elif command == "prepare":
             result = prepare(**args)
             print(json.dumps(result["splits"], indent=2))
         elif command == "collect":

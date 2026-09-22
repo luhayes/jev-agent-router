@@ -1,0 +1,4895 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "network": "httpx.MockTransport only",
+  "telemetry": "disabled",
+  "sdk_version": "0.1.0",
+  "python": "3.11.16",
+  "collected_at": "2026-09-22T14:29:05.680958+00:00",
+  "scenario_sha256": "ba244acef6c2e7e3a78124d4881ff37053bb5ecd8005fcc80107d28063d1dcc1",
+  "source_sha256": {
+    "faults.py": "ace861378304a83535ed1e587ee9488e65366c4133d93f9b925ef072b9ffb9b2",
+    "router.py": "192e336662de310d1416c2e54ff380b78d49e42f8a607897606e60b23fc3f7b1",
+    "llm.py": "1bad24059987b368aea802c610f0130f6655374c8271f8de2a6ada5b7818a87d"
+  },
+  "timeouts_seconds": {
+    "jev": 0.05,
+    "fallback": 0.05
+  },
+  "repeats": 3,
+  "scenario_count": 17,
+  "checks_total": 693,
+  "checks_passed": 693,
+  "passed": true,
+  "summaries": [
+    {
+      "strategy": "jev-only",
+      "executions": 48,
+      "decisions": 21,
+      "correct": 15,
+      "p50_ms": 0.5974750019959174,
+      "p95_ms": 33.78508044806942
+    },
+    {
+      "strategy": "cascade",
+      "executions": 51,
+      "decisions": 33,
+      "correct": 27,
+      "p50_ms": 1.1774689992307685,
+      "p95_ms": 51.800006003759336
+    }
+  ],
+  "rows": [
+    {
+      "scenario": "healthy",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 2.0636810004361905,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 1.689537995844148,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "healthy",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 1.2656629987759516,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 1.0665559966582805,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "low_confidence_corrected",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.7167380026658066,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.6037950006430037,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "low_confidence_corrected",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "low_confidence",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.5498780048801564,
+      "event": {
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "jev_ms": 0.6231840015971102,
+        "fallback_ms": 0.7894070004113019,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "confidently_wrong",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.7563180042780004,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.5783940068795346,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "confidently_wrong",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.9188749972963706,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.8118410041788593,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_can_regress",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.7213549979496747,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.5921439951634966,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_can_regress",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "fallback",
+      "reason": "low_confidence",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.3499540000339039,
+      "event": {
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "jev_ms": 0.5852620015502907,
+        "fallback_ms": 0.6322279950836673,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "rate_limit",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5165900001884438,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.40936799632618204,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 429,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "rate_limit",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.2094589983462356,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 0.503657000081148,
+        "fallback_ms": 0.5133070008014329,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 429,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "server_error",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5173329991521314,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.41111699829343706,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 503,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "server_error",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.1987510006292723,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 0.5249440000625327,
+        "fallback_ms": 0.5423429975053295,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 503,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "jev_timeout",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 50.91060200356878,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 50.653295998927206,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "timeout",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "jev_timeout",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 52.185407002980355,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 50.83367800398264,
+        "fallback_ms": 1.147367998783011,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "timeout",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "network_error",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5422260001068935,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.3479589940980077,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "network_error",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "network_error",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.074333005817607,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 0.29840500064892694,
+        "fallback_ms": 0.6556200023624115,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "network_error",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_json",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.63855700136628,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.524096998560708,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_json",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_json",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "invalid_response",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.5080550001584925,
+      "event": {
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "jev_ms": 0.8097749960143119,
+        "fallback_ms": 0.5826670021633618,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_json",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "unknown_label",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.63058000523597,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.4755670015583746,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_labels",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "unknown_label",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "invalid_response",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.2107739967177622,
+      "event": {
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "jev_ms": 0.5118409972055815,
+        "fallback_ms": 0.583302004088182,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_labels",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_probability_sum",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5781139989267103,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.46703599946340546,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_probability_sum",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 0.6000000000000001
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_probability_sum",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "invalid_response",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.2040929941576906,
+      "event": {
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "jev_ms": 0.5286980012897402,
+        "fallback_ms": 0.5583539968938567,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_probability_sum",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 0.6000000000000001
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "authentication_error",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "request_error",
+      "label": null,
+      "origin": "error",
+      "reason": "jev_request_error",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.607791000220459,
+      "event": {
+        "origin": "error",
+        "reason": "jev_request_error",
+        "jev_ms": 0.49079599557444453,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_request_error",
+        "jev_error": "http_error",
+        "jev_http_status": 401,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "request_error",
+        "label": null,
+        "origin": "error",
+        "reason": "jev_request_error",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "authentication_error",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "request_error",
+      "label": null,
+      "origin": "error",
+      "reason": "jev_request_error",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6008039999869652,
+      "event": {
+        "origin": "error",
+        "reason": "jev_request_error",
+        "jev_ms": 0.49446400225861,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_request_error",
+        "jev_error": "http_error",
+        "jev_http_status": 401,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "request_error",
+        "label": null,
+        "origin": "error",
+        "reason": "jev_request_error",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_timeout",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.7460249980795197,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.6459270007326268,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_timeout",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "fallback_error",
+      "label": null,
+      "origin": "error",
+      "reason": "fallback_failed",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 51.43059399415506,
+      "event": {
+        "origin": "error",
+        "reason": "fallback_failed",
+        "jev_ms": 0.5897959999856539,
+        "fallback_ms": 50.68052899878239,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "fallback_error",
+        "label": null,
+        "origin": "error",
+        "reason": "fallback_failed",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_server_error",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 1.0742829981609248,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.901420004083775,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_server_error",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "fallback_error",
+      "label": null,
+      "origin": "error",
+      "reason": "fallback_failed",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.3830890020471998,
+      "event": {
+        "origin": "error",
+        "reason": "fallback_failed",
+        "jev_ms": 0.6279160006670281,
+        "fallback_ms": 0.6375570010277443,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "fallback_error",
+        "label": null,
+        "origin": "error",
+        "reason": "fallback_failed",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_invalid_label",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5904790014028549,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.4870490010944195,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_invalid_label",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "fallback_error",
+      "label": null,
+      "origin": "error",
+      "reason": "fallback_failed",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.199256999825593,
+      "event": {
+        "origin": "error",
+        "reason": "fallback_failed",
+        "jev_ms": 0.48467300075571984,
+        "fallback_ms": 0.5420029992819764,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "fallback_error",
+        "label": null,
+        "origin": "error",
+        "reason": "fallback_failed",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "cancel_during_jev",
+      "strategy": "jev-only",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "cancelled",
+      "label": null,
+      "origin": "cancelled",
+      "reason": "cancelled",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.42379200021969154,
+      "event": {
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "jev_ms": 0.30039100238354877,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "invalid_response",
+        "jev_error": null,
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "cancelled",
+        "label": null,
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "cancel_during_jev",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "cancelled",
+      "label": null,
+      "origin": "cancelled",
+      "reason": "cancelled",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.4397489974508062,
+      "event": {
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "jev_ms": 0.3169899937347509,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "invalid_response",
+        "jev_error": null,
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "cancelled",
+        "label": null,
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "cancel_during_fallback",
+      "strategy": "cascade",
+      "repeat": 0,
+      "truth": "billing",
+      "status": "cancelled",
+      "label": null,
+      "origin": "cancelled",
+      "reason": "cancelled",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 0.9474519974901341,
+      "event": {
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "jev_ms": 0.43486099457368255,
+        "fallback_ms": 0.38697299896739423,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "cancelled",
+        "label": null,
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "healthy",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6024560061632656,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.4461029966478236,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "healthy",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5446620052680373,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.4524979958659969,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "low_confidence_corrected",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "low_confidence",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.1774689992307685,
+      "event": {
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "jev_ms": 0.48973999946611,
+        "fallback_ms": 0.5843899998581037,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "low_confidence_corrected",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6092559997341596,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.5123820010339841,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "confidently_wrong",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5712939964723773,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.483442003314849,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "confidently_wrong",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5048830062150955,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.4223119976813905,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_can_regress",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "fallback",
+      "reason": "low_confidence",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.233732000400778,
+      "event": {
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "jev_ms": 0.493061997985933,
+        "fallback_ms": 0.6318050000118092,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_can_regress",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5614140027319081,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.46644200483569875,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "rate_limit",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.1174179962836206,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 0.4409059984027408,
+        "fallback_ms": 0.569097996049095,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 429,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "rate_limit",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.4884349982603453,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.3890759981004521,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 429,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "server_error",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.3116509944666177,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 0.527139003679622,
+        "fallback_ms": 0.6767410013708286,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 503,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "server_error",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6870110009913333,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.5335649984772317,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 503,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "jev_timeout",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 52.27086200466147,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 51.055572999757715,
+        "fallback_ms": 1.0436990050948225,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "timeout",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "jev_timeout",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 50.936724997882266,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 50.727519002975896,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "timeout",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "network_error",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.1909250024473295,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 0.3795320008066483,
+        "fallback_ms": 0.66227500064997,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "network_error",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "network_error",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.3961219990742393,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.24660399503773078,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "network_error",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_json",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "invalid_response",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.0764470061985776,
+      "event": {
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "jev_ms": 0.44545799755724147,
+        "fallback_ms": 0.5239189995336346,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_json",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_json",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5690949983545579,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.46523299533873796,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_json",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "unknown_label",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "invalid_response",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.168881994090043,
+      "event": {
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "jev_ms": 0.45859300007577986,
+        "fallback_ms": 0.6011049990775064,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_labels",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "unknown_label",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6097349978517741,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.46100000326987356,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_labels",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_probability_sum",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "invalid_response",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.1665560014080256,
+      "event": {
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "jev_ms": 0.45370400039246306,
+        "fallback_ms": 0.6045109985279851,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_probability_sum",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 0.6000000000000001
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_probability_sum",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6506959980470128,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.5432100006146356,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_probability_sum",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 0.6000000000000001
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "authentication_error",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "request_error",
+      "label": null,
+      "origin": "error",
+      "reason": "jev_request_error",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5642369942506775,
+      "event": {
+        "origin": "error",
+        "reason": "jev_request_error",
+        "jev_ms": 0.46156699681887403,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_request_error",
+        "jev_error": "http_error",
+        "jev_http_status": 401,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "request_error",
+        "label": null,
+        "origin": "error",
+        "reason": "jev_request_error",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "authentication_error",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "request_error",
+      "label": null,
+      "origin": "error",
+      "reason": "jev_request_error",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5116870015626773,
+      "event": {
+        "origin": "error",
+        "reason": "jev_request_error",
+        "jev_ms": 0.4259650013409555,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_request_error",
+        "jev_error": "http_error",
+        "jev_http_status": 401,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "request_error",
+        "label": null,
+        "origin": "error",
+        "reason": "jev_request_error",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_timeout",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "fallback_error",
+      "label": null,
+      "origin": "error",
+      "reason": "fallback_failed",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 51.6451900039101,
+      "event": {
+        "origin": "error",
+        "reason": "fallback_failed",
+        "jev_ms": 0.5202180036576465,
+        "fallback_ms": 50.954897997144144,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "fallback_error",
+        "label": null,
+        "origin": "error",
+        "reason": "fallback_failed",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_timeout",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.9361089978483506,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.7800250023137778,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_server_error",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "fallback_error",
+      "label": null,
+      "origin": "error",
+      "reason": "fallback_failed",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.325090997852385,
+      "event": {
+        "origin": "error",
+        "reason": "fallback_failed",
+        "jev_ms": 0.5798880010843277,
+        "fallback_ms": 0.5457070001284592,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "fallback_error",
+        "label": null,
+        "origin": "error",
+        "reason": "fallback_failed",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_server_error",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5847899956279434,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.48103400331456214,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_invalid_label",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "fallback_error",
+      "label": null,
+      "origin": "error",
+      "reason": "fallback_failed",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.21009999566013,
+      "event": {
+        "origin": "error",
+        "reason": "fallback_failed",
+        "jev_ms": 0.5223670013947412,
+        "fallback_ms": 0.5758070037700236,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "fallback_error",
+        "label": null,
+        "origin": "error",
+        "reason": "fallback_failed",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_invalid_label",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6582970017916523,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.5239090023678727,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "cancel_during_jev",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "cancelled",
+      "label": null,
+      "origin": "cancelled",
+      "reason": "cancelled",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.48044499999377877,
+      "event": {
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "jev_ms": 0.3441910012043081,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "invalid_response",
+        "jev_error": null,
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "cancelled",
+        "label": null,
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "cancel_during_jev",
+      "strategy": "jev-only",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "cancelled",
+      "label": null,
+      "origin": "cancelled",
+      "reason": "cancelled",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.4855879960814491,
+      "event": {
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "jev_ms": 0.3474969998933375,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "invalid_response",
+        "jev_error": null,
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "cancelled",
+        "label": null,
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "cancel_during_fallback",
+      "strategy": "cascade",
+      "repeat": 1,
+      "truth": "billing",
+      "status": "cancelled",
+      "label": null,
+      "origin": "cancelled",
+      "reason": "cancelled",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 0.9963430056814104,
+      "event": {
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "jev_ms": 0.4537900022114627,
+        "fallback_ms": 0.39950299833435565,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "cancelled",
+        "label": null,
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "healthy",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5812309973407537,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.46209600259317085,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "healthy",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6391450006049126,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.49863500316860154,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "low_confidence_corrected",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6352850032271817,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.5361730000004172,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "low_confidence_corrected",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "low_confidence",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.1700329996529035,
+      "event": {
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "jev_ms": 0.5002839970984496,
+        "fallback_ms": 0.5539060002774931,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "confidently_wrong",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6700410012854263,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.5709979959647171,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "confidently_wrong",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.73475600220263,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.6397789984475821,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_can_regress",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6044710025889799,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.4711250003310852,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_can_regress",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "technical",
+      "origin": "fallback",
+      "reason": "low_confidence",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.234306997503154,
+      "event": {
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "jev_ms": 0.48638300359016284,
+        "fallback_ms": 0.6307889998424798,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "technical",
+        "origin": "fallback",
+        "reason": "low_confidence",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "rate_limit",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.6703920007566921,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.5099299960420467,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 429,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "rate_limit",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.4220290031516925,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 0.7813959964551032,
+        "fallback_ms": 0.534231003257446,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 429,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "server_error",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5612199965980835,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.4191719999653287,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 503,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "server_error",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.0783689940581098,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 0.44481300574261695,
+        "fallback_ms": 0.5307009996613488,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "http_error",
+        "jev_http_status": 503,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "jev_timeout",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 50.86583399679512,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 50.67871999926865,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "timeout",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "jev_timeout",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 51.95482200360857,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 50.78727699583396,
+        "fallback_ms": 0.9476550039835274,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "timeout",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "network_error",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.42563200258882716,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.28978200134588405,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "network_error",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "network_error",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "jev_transient_error",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 0.9234899989678524,
+      "event": {
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "jev_ms": 0.22517100296681747,
+        "fallback_ms": 0.5951929997536354,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "jev_transient_error",
+        "jev_error": "network_error",
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "jev_transient_error",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_json",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5818270001327619,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.4810070022358559,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_json",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_json",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "invalid_response",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.013337998301722,
+      "event": {
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "jev_ms": 0.3749530005734414,
+        "fallback_ms": 0.5346710022422485,
+        "input_tokens": 10,
+        "output_tokens": 2,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_json",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "unknown_label",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5383620009524748,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.44285599869908765,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_labels",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "unknown_label",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "invalid_response",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.0643529967637733,
+      "event": {
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "jev_ms": 0.4155100032221526,
+        "fallback_ms": 0.5445560018415563,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_labels",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_probability_sum",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "abstained",
+      "label": null,
+      "origin": "error",
+      "reason": "no_fallback",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5698409950127825,
+      "event": {
+        "origin": "error",
+        "reason": "no_fallback",
+        "jev_ms": 0.47531699965475127,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_probability_sum",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 0.6000000000000001
+      },
+      "expected": {
+        "status": "abstained",
+        "label": null,
+        "origin": "error",
+        "reason": "no_fallback",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "invalid_probability_sum",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "fallback",
+      "reason": "invalid_response",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.3290320057421923,
+      "event": {
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "jev_ms": 0.44373099808581173,
+        "fallback_ms": 0.7004830040386878,
+        "input_tokens": 20,
+        "output_tokens": 2,
+        "jev_reason": "invalid_response",
+        "jev_error": "invalid_probability_sum",
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 0.6000000000000001
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "fallback",
+        "reason": "invalid_response",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "authentication_error",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "request_error",
+      "label": null,
+      "origin": "error",
+      "reason": "jev_request_error",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.5682619957951829,
+      "event": {
+        "origin": "error",
+        "reason": "jev_request_error",
+        "jev_ms": 0.4369649977888912,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_request_error",
+        "jev_error": "http_error",
+        "jev_http_status": 401,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "request_error",
+        "label": null,
+        "origin": "error",
+        "reason": "jev_request_error",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "authentication_error",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "request_error",
+      "label": null,
+      "origin": "error",
+      "reason": "jev_request_error",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.9223669985658489,
+      "event": {
+        "origin": "error",
+        "reason": "jev_request_error",
+        "jev_ms": 0.7820429964340292,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "jev_request_error",
+        "jev_error": "http_error",
+        "jev_http_status": 401,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "request_error",
+        "label": null,
+        "origin": "error",
+        "reason": "jev_request_error",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_timeout",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.668065003992524,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.5760130006819963,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_timeout",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "fallback_error",
+      "label": null,
+      "origin": "error",
+      "reason": "fallback_failed",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 51.339661004021764,
+      "event": {
+        "origin": "error",
+        "reason": "fallback_failed",
+        "jev_ms": 0.4440710035851225,
+        "fallback_ms": 50.707444999716245,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "fallback_error",
+        "label": null,
+        "origin": "error",
+        "reason": "fallback_failed",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_server_error",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 1.0442790007800795,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.8135199968819506,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_server_error",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "fallback_error",
+      "label": null,
+      "origin": "error",
+      "reason": "fallback_failed",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 1.2196040042908862,
+      "event": {
+        "origin": "error",
+        "reason": "fallback_failed",
+        "jev_ms": 0.6516649955301546,
+        "fallback_ms": 0.4263719965820201,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "fallback_error",
+        "label": null,
+        "origin": "error",
+        "reason": "fallback_failed",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_invalid_label",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "decision",
+      "label": "billing",
+      "origin": "jev",
+      "reason": "confident",
+      "correct": true,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.3730850003194064,
+      "event": {
+        "origin": "jev",
+        "reason": "confident",
+        "jev_ms": 0.31082700297702104,
+        "fallback_ms": 0.0,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "confident",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "decision",
+        "label": "billing",
+        "origin": "jev",
+        "reason": "confident",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "fallback_invalid_label",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "fallback_error",
+      "label": null,
+      "origin": "error",
+      "reason": "fallback_failed",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 0.7592830006615259,
+      "event": {
+        "origin": "error",
+        "reason": "fallback_failed",
+        "jev_ms": 0.2551020006649196,
+        "fallback_ms": 0.43370800267439336,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "fallback_error",
+        "label": null,
+        "origin": "error",
+        "reason": "fallback_failed",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "cancel_during_jev",
+      "strategy": "jev-only",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "cancelled",
+      "label": null,
+      "origin": "cancelled",
+      "reason": "cancelled",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.3461599990259856,
+      "event": {
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "jev_ms": 0.2355069955228828,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "invalid_response",
+        "jev_error": null,
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "cancelled",
+        "label": null,
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "cancel_during_jev",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "cancelled",
+      "label": null,
+      "origin": "cancelled",
+      "reason": "cancelled",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 0
+      },
+      "elapsed_ms": 0.31918299646349624,
+      "event": {
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "jev_ms": 0.1874029985629022,
+        "fallback_ms": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "jev_reason": "invalid_response",
+        "jev_error": null,
+        "jev_http_status": null,
+        "jev_usage": {
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "jev_probability_sum": null
+      },
+      "expected": {
+        "status": "cancelled",
+        "label": null,
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "llm_calls": 0
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    },
+    {
+      "scenario": "cancel_during_fallback",
+      "strategy": "cascade",
+      "repeat": 2,
+      "truth": "billing",
+      "status": "cancelled",
+      "label": null,
+      "origin": "cancelled",
+      "reason": "cancelled",
+      "correct": false,
+      "calls": {
+        "jev": 1,
+        "llm": 1
+      },
+      "elapsed_ms": 0.5694299979950301,
+      "event": {
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "jev_ms": 0.27935900288866833,
+        "fallback_ms": 0.21297600324032828,
+        "input_tokens": 10,
+        "output_tokens": 0,
+        "jev_reason": "low_confidence",
+        "jev_error": null,
+        "jev_http_status": 200,
+        "jev_usage": {
+          "input_tokens": 10,
+          "output_tokens": 0
+        },
+        "jev_probability_sum": 1.0
+      },
+      "expected": {
+        "status": "cancelled",
+        "label": null,
+        "origin": "cancelled",
+        "reason": "cancelled",
+        "llm_calls": 1
+      },
+      "checks": {
+        "outcome_contract": true,
+        "one_jev_attempt": true,
+        "at_most_one_fallback": true,
+        "one_observer_event": true,
+        "allowed_label_or_no_decision": true,
+        "jev_diagnostic": true,
+        "cancellation_propagated": true
+      },
+      "passed": true
+    }
+  ]
+}

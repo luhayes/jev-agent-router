@@ -311,7 +311,7 @@ def render_markdown(report):
     config = report["run"]["config"]
     llm = config.get("llm", {"provider": "openai", "response_format": "json_schema"})
     lines = [
-        "# " + ("SYNTHETIC DEMO — NOT MODEL PERFORMANCE" if report["synthetic"] else "BANKING77 benchmark"),
+        "# " + ("SYNTHETIC DEMO — NOT MODEL PERFORMANCE" if report["synthetic"] else ("Custom workload benchmark" if report["run"]["dataset"].get("dataset_kind") == "custom" else "BANKING77 benchmark")),
         "",
         f"Split: **{config['split']}**. Mode: **{config['mode']}**.",
         f"Models: Jev `{config['jev_model']}`; LLM `{config['model']}`.",
@@ -438,8 +438,12 @@ def render_markdown(report):
         "## Reproduction",
         "",
         "Run settings, dataset hashes, model, timestamps and pricing are embedded in report.json.",
-        "Data: https://github.com/PolyAI-LDN/task-specific-datasets (CC-BY-4.0).",
-        "Cite Casanueva et al., Efficient Intent Detection with Dual Sentence Encoders (2020): https://arxiv.org/abs/2003.04807.",
+        *(
+            ["Data: user-supplied workload; ownership and permitted use are the dataset owner’s responsibility."]
+            if report["run"]["dataset"].get("dataset_kind") == "custom" else
+            ["Data: https://github.com/PolyAI-LDN/task-specific-datasets (CC-BY-4.0).",
+             "Cite Casanueva et al., Efficient Intent Detection with Dual Sentence Encoders (2020): https://arxiv.org/abs/2003.04807."]
+        ),
         "",
     ]
     return "\n".join(lines)

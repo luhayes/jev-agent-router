@@ -1,0 +1,36 @@
+{
+  "status": "not-approved-example-only",
+  "workload": "replace-me",
+  "criteria_version": "replace-me",
+  "predeclared_limits": {
+    "min_test_accuracy": null,
+    "max_dev_accuracy_drop_vs_llm": 0.01,
+    "max_request_failure_rate": null,
+    "max_live_p95_ms": null,
+    "max_usd_per_1000": null,
+    "critical_class_requirements": "define before opening test results"
+  },
+  "evidence": {
+    "collector_commit": null,
+    "dataset_manifest_sha256": null,
+    "policy_sha256": null,
+    "smoke_report": null,
+    "dev_report": null,
+    "frozen_test_report": null,
+    "live_policy_report": null,
+    "fault_report": null
+  },
+  "decision": {
+    "selected_strategy": null,
+    "threshold": null,
+    "quality_gate_passed": false,
+    "failure_gate_passed": false,
+    "latency_gate_passed": false,
+    "cost_gate_passed": false,
+    "reviewer": null,
+    "reviewed_at": null,
+    "known_limitations": [],
+    "rollback_target": "previous evaluated policy or application-owned review path",
+    "re_evaluate_when": "criteria, model, prices or workload changes; choose a review cadence"
+  }
+}

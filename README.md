@@ -2,7 +2,25 @@
 
 An independent, MIT-licensed Python MVP bridging async agent applications to **Jev Choice** decisions. Jev runs first; a confidence gate accepts its selection or delegates to a validated async fallback. The package returns data, **never executes a selected tool, Skill, agent, or shell command**.
 
-This is a local open-source package, not an official Typesafe integration and not an existing jevcalc.com SaaS service. Nothing is published by this project setup. **Score and Noul are out of the MVP.**
+This is a local open-source package, not an official Typesafe integration and not an existing jevcalc.com SaaS service. **Score and Noul are out of the MVP.**
+
+## Start with an evaluated decision policy
+
+[Evaluate your own workload](docs/decision-workflow.md) →
+[Integrate the selected strategy](examples/selected_policy.py) →
+[Verify failure behavior](benchmarks/faults/README.md).
+
+The evaluation tools compare **Jev-only, LLM-only and cascade**, freeze the choice
+on development data, and validate it on a separate test split. The core Router
+provides Jev-first response validation and bounded fallback; the application
+example dispatches all three frozen strategies. Single-model selection is a
+valid result, not a failed routing experiment.
+
+The reusable workflow includes custom labeled-data import, cost-aware selection,
+random controls, live policy measurement and an offline fault report. No JevCalc
+account is required. Only explicit live collection/inference makes paid calls.
+See the [BANKING77 case study](https://jevcalc.com/blog/jev-banking77-fallback-routing-experiment)
+for a concrete result where development data favored Jev-only.
 
 ## Architecture
 
