@@ -97,3 +97,30 @@ An initial Ruff run found compact test formatting violations; formatting correct
   this environment, so no actionlint result is claimed.
 - No GitHub-hosted workflow or paid API evaluation has been run as part of this
   verification. No provider credentials were available or added to the repository.
+
+
+## Multiple LLM providers — 2026-09-22
+
+- Added a shared httpx JSON fallback with fixed OpenAI, DeepSeek, OpenRouter,
+  Gemini Developer API, Kimi international and Kimi China presets. The existing
+  `OpenAIJSONFallback` constructor and request contract remain compatible.
+- CLI and manual Actions support provider and response-format selection. Only
+  the chosen provider's environment key is read; workflow expressions populate
+  only that LLM secret. No OpenAI key is required for non-OpenAI providers.
+- JSON mode adds an explicit output instruction. Both formats enforce the exact
+  allowed label locally, reject refusal/truncation/extra fields, disable redirects
+  and never silently retry or change formats. OpenRouter requires parameter support.
+- Reports and frozen policies record the service, base URL, resolved output format
+  and adapter version. Provider/format changes are rejected during resume and
+  frozen-policy validation, even when the model name is identical.
+- Full local suite: **155 passed, 6 skipped**. Mock HTTP tests cover every preset's
+  destination, credentials and request format, invalid responses, missing keys,
+  no redirect/retry, unknown usage, and the real collector/analyzer Actions flow
+  for every provider (success, smoke failure and no eligible policy).
+- Ruff and `git diff --check` passed. PyYAML parsed the workflow and tests checked
+  conditional secret bindings. CLI help exposes both new options. The wheel
+  built successfully and contains the new provider adapter and benchmark.
+- Provider presets were checked against official documentation linked in the
+  Actions guide. No live provider calls or GitHub-hosted workflow run were made;
+  account access, model-specific support, latency, accuracy and billing need a
+  real smoke evaluation with user-managed credentials.

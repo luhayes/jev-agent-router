@@ -21,7 +21,7 @@ installation, then follow this sequence:
 
 - `demo` runs entirely offline with synthetic responses and fictional prices.
   Its results do not represent model performance.
-- `collect` calls the live Jev and OpenAI APIs and incurs charges. API keys are
+- `collect` calls live Jev and the selected LLM service and incurs charges. API keys are
   read only from environment variables.
 - The default development split contains 5 examples per class (385 total), and
   the test split contains 10 per class (770 total). Every request includes all
@@ -39,7 +39,7 @@ installation, then follow this sequence:
   does not guarantee identical results in future runs.
 
 The commands below use Bash. In PowerShell, set keys with
-`$env:TYPESAFE_API_KEY` and `$env:OPENAI_API_KEY`, and use the Python executable
+`$env:TYPESAFE_API_KEY` and the selected provider key (for example, `$env:DEEPSEEK_API_KEY`), and use the Python executable
 from your virtual environment.
 
 ## 1. Install and run the no-network demo
@@ -105,16 +105,30 @@ experiment and select a new policy.
 
 ## 3. Check 20 live requests first
 
-Set `TYPESAFE_API_KEY` and `OPENAI_API_KEY` securely in your shell. Choose an OpenAI
-model available to your account that supports strict JSON schema on Chat
-Completions. There is no default model or hardcoded vendor pricing.
+Set `TYPESAFE_API_KEY` and your selected service's key securely in your shell.
+Choose `--provider openai|deepseek|openrouter|gemini|kimi|kimi-cn` and a model
+available to your account. OpenAI is the backward-compatible default; other
+providers do not need an OpenAI key. See the [provider/key table](ACTIONS.md#add-keys-for-live-evaluation).
+There is no default model or hardcoded vendor pricing.
+
+`--response-format auto` uses JSON mode for DeepSeek/Kimi and strict JSON schema
+for OpenAI/OpenRouter/Gemini. Override with `json_object` or `json_schema` only
+when supported by your model. Both modes validate the exact label locally;
+invalid output remains a failure. Keep provider and format identical through
+smoke, development, test and live runs. Each invocation calls one selected LLM.
+
+For example, set `BENCHMARK_PROVIDER=deepseek` and supply `DEEPSEEK_API_KEY` for
+DeepSeek. Set `BENCHMARK_PROVIDER=kimi-cn` for a China-issued Moonshot key.
+The commands below pass the provider explicitly; this environment variable is
+only a shell convenience, not a credential or an implicit CLI setting.
 
 ```bash
 # Use an actual model ID available to your account, not the placeholder below.
+export BENCHMARK_PROVIDER='deepseek'
 export BENCHMARK_MODEL='YOUR_MODEL_ID'
 python -m jev_agent_router.benchmark collect \
   --dataset benchmark-results/data --split smoke \
-  --model "$BENCHMARK_MODEL" --output benchmark-results/smoke-run
+  --provider "$BENCHMARK_PROVIDER" --model "$BENCHMARK_MODEL" --output benchmark-results/smoke-run
 python -m jev_agent_router.benchmark analyze \
   --run benchmark-results/smoke-run --output benchmark-results/smoke-report
 ```
@@ -127,14 +141,16 @@ Use `--timeout` to set both provider deadlines. No hidden retry loop is added.
 
 Outputs:
 
-- `run.json`: models, SDK/Python versions, dataset manifest, dates, configuration,
-  ordered sample IDs, completion state.
+- `run.json`: provider, API base URL, resolved output format, adapter version,
+  models, SDK/Python versions, dataset manifest, dates, configuration, ordered
+  sample IDs and completion state.
 - `results.jsonl`: sample ID, truth, predictions, Jev confidence, outcome states,
   measured elapsed times, separate token usage. No keys or raw provider bodies.
 
 Interrupted runs retain completed rows. Continue with the same command plus
-`--resume`. Configuration mismatches are rejected. An interrupted sample may be
-called again if it was not fully saved; billed attempts before a crash are not
+`--resume`. Configuration mismatches are rejected. To resume a run from before provider
+metadata was added, use its original repository commit; do not edit its run
+metadata. An interrupted sample may be called again if it was not fully saved; billed attempts before a crash are not
 recoverable from local results. A process lock blocks simultaneous writers.
 After a hard kill, remove `.running` only when no collector is active. A malformed
 JSONL file is rejected rather than silently dropping records.
@@ -144,7 +160,7 @@ JSONL file is rejected rather than silently dropping records.
 ```bash
 python -m jev_agent_router.benchmark collect \
   --dataset benchmark-results/data --split dev \
-  --model "$BENCHMARK_MODEL" --output benchmark-results/dev-run
+  --provider "$BENCHMARK_PROVIDER" --model "$BENCHMARK_MODEL" --output benchmark-results/dev-run
 cp benchmarks/banking77/prices.example.json benchmark-results/prices.json
 ```
 
@@ -179,7 +195,7 @@ are exploratory.
 ```bash
 python -m jev_agent_router.benchmark collect \
   --dataset benchmark-results/data --split test \
-  --model "$BENCHMARK_MODEL" --output benchmark-results/test-run
+  --provider "$BENCHMARK_PROVIDER" --model "$BENCHMARK_MODEL" --output benchmark-results/test-run
 python -m jev_agent_router.benchmark analyze \
   --run benchmark-results/test-run \
   --policy benchmark-results/dev-report/policy.json \
@@ -187,7 +203,7 @@ python -m jev_agent_router.benchmark analyze \
 ```
 
 Only the frozen threshold is evaluated, even if `--thresholds` is supplied.
-Model, dataset, timeout and pricing changes are rejected against the policy.
+Provider, output format, model, dataset, timeout and pricing changes are rejected against the policy.
 Do not tune on the test results and then present the same test set as held out.
 Repeated public-benchmark tuning also weakens the interpretation of held-out
 results; these public examples may already appear in model training data.
@@ -220,7 +236,7 @@ only calculated when both full costs are known.
 ```bash
 python -m jev_agent_router.benchmark collect \
   --dataset benchmark-results/data --split test \
-  --model "$BENCHMARK_MODEL" \
+  --provider "$BENCHMARK_PROVIDER" --model "$BENCHMARK_MODEL" \
   --policy benchmark-results/dev-report/policy.json \
   --output benchmark-results/live-run
 python -m jev_agent_router.benchmark analyze \

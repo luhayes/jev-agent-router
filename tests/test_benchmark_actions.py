@@ -9,6 +9,7 @@ import httpx
 import pytest
 import yaml
 
+from jev_agent_router.llm import PROVIDERS, provider_config
 from jev_agent_router.benchmark.data import digest, read_json, write_json
 from jev_agent_router.benchmark.runner import collect as real_collect
 
@@ -48,6 +49,8 @@ def env(mode="small"):
         {"BENCHMARK_PRICES_JSON": ""},
         {"BENCHMARK_PRICES_JSON": '{"api_key": "DO_NOT_PRINT"}'},
         {"BENCHMARK_MODE": "unknown"},
+        {"BENCHMARK_PROVIDER": "unknown"},
+        {"BENCHMARK_RESPONSE_FORMAT": "text"},
     ],
 )
 def test_invalid_paid_inputs_rejected_before_calls(changes):
@@ -88,6 +91,7 @@ def test_workflow_manual_trigger_secret_scope_and_artifact_allowlist():
     assert set(workflow["on"]) == {"workflow_dispatch"}
     assert workflow["on"]["workflow_dispatch"]["inputs"]["mode"]["default"] == "demo"
     assert workflow["on"]["workflow_dispatch"]["inputs"]["confirm_paid"]["default"] == "false"
+    assert set(workflow["on"]["workflow_dispatch"]["inputs"]["provider"]["options"]) == set(PROVIDERS)
     assert workflow["permissions"] == {"contents": "read"}
     assert workflow["concurrency"]["cancel-in-progress"] == "false"
     steps = workflow["jobs"]["benchmark"]["steps"]
@@ -95,6 +99,10 @@ def test_workflow_manual_trigger_secret_scope_and_artifact_allowlist():
     assert len(secret_steps) == 1
     assert secret_steps[0]["if"] == "inputs.mode != 'demo'"
     assert set(secret_steps[0]["env"]) >= {"TYPESAFE_API_KEY", "OPENAI_API_KEY"}
+    for provider, (_, key, _) in PROVIDERS.items():
+        expression = secret_steps[0]["env"][key]
+        assert f"inputs.provider == '{provider}'" in expression
+        assert f"secrets.{key}" in expression and "|| ''" in expression
     assert '"refs/heads/$DEFAULT_BRANCH"' in steps[0]["run"]
     for step in steps:
         assert "${{ inputs." not in step.get("run", "")
@@ -137,8 +145,9 @@ def test_workflow_manual_trigger_secret_scope_and_artifact_allowlist():
         ("policy", "stopped_no_policy", ["smoke", "dev"]),
     ],
 )
+@pytest.mark.parametrize("provider", list(PROVIDERS))
 def test_pipeline_uses_real_collector_and_stops_before_extra_calls(
-    tmp_path, monkeypatch, failure, expected, splits
+    tmp_path, monkeypatch, failure, expected, splits, provider
 ):
     calls, collected = [], []
     criteria = {"billing": "Billing", "technical": "Technical"}
@@ -186,7 +195,7 @@ def test_pipeline_uses_real_collector_and_stops_before_extra_calls(
                     "usage": {"input_tokens": 20, "output_tokens": 0},
                 },
             )
-        assert request.url.host == "api.openai.com"
+        assert str(request.url) == PROVIDERS[provider][0] + "/chat/completions"
         return httpx.Response(
             200,
             json={
@@ -201,14 +210,20 @@ def test_pipeline_uses_real_collector_and_stops_before_extra_calls(
 
     monkeypatch.setattr(actions, "prepare", prepare)
     monkeypatch.setattr(actions, "collect", collect)
-    for key in ("TYPESAFE_API_KEY", "OPENAI_API_KEY", "JEVCALC_API_KEY"):
+    for _, key, _ in PROVIDERS.values():
+        monkeypatch.delenv(key, raising=False)
+    for key in ("TYPESAFE_API_KEY", PROVIDERS[provider][1], "JEVCALC_API_KEY"):
         monkeypatch.setenv(key, "SECRET_SENTINEL_DO_NOT_UPLOAD")
     monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(tmp_path / "summary.md"))
-    settings = actions.settings_from_env(env() | {"BENCHMARK_MEASURE_LIVE": "true"})
+    settings = actions.settings_from_env(
+        env() | {"BENCHMARK_MEASURE_LIVE": "true", "BENCHMARK_PROVIDER": provider}
+    )
     output = tmp_path / "results"
     assert actions.run(settings, output) == 0
     assert read_json(output / "status.json")["status"] == expected
     assert collected == splits
+    assert read_json(output / "smoke-run/run.json")["config"]["llm"] == provider_config(provider)
+    assert f"LLM service: `{provider}`" in (output / "smoke-report/report.md").read_text()
     assert len(calls) == (29 if failure is None else 8 if failure == "smoke" else 16)
     for file in tmp_path.rglob("*"):
         if file.is_file():

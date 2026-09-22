@@ -116,6 +116,23 @@ asyncio.run(main())
 
 Missing/empty keys fail immediately with `ConfigurationError`. OpenAI fallback posts directly to `https://api.openai.com/v1/chat/completions` using strict JSON schema with an enum of allowed labels. It rejects refusal, truncation, unknown labels, malformed JSON and extra fields locally. No confidence is invented. Model availability/schema support must be checked with your account.
 
+For DeepSeek, OpenRouter, Gemini or Kimi, use the same validated fallback contract:
+
+```python
+from jev_agent_router.llm import ChatJSONFallback
+
+fallback = ChatJSONFallback(provider="deepseek", model="YOUR_MODEL_ID", timeout=30)
+router = Router(fallback=fallback, threshold=0.8)
+```
+
+This example reads `DEEPSEEK_API_KEY` and `TYPESAFE_API_KEY`; it does not need an
+OpenAI key. Supported providers are `openai`, `deepseek`, `openrouter`, `gemini`,
+`kimi` (international) and `kimi-cn` (China). `response_format="auto"` selects
+the provider preset; both JSON mode and JSON schema results are validated locally.
+See the [provider/key mapping and Actions instructions](benchmarks/banking77/ACTIONS.md).
+`OpenAIJSONFallback` keeps its original API and OpenAI-only behavior.
+
+
 ### Bring your own async fallback
 
 ```python

@@ -10,6 +10,8 @@ from jev_agent_router.benchmark.__main__ import demo, main
 from jev_agent_router.benchmark.data import digest, load_split, prepare, read_json, write_json
 from jev_agent_router.benchmark.report import analyze, cost, replay, summarize
 from jev_agent_router.benchmark.runner import collect, read_records
+from jev_agent_router.benchmark.runner import check_policy
+from jev_agent_router.llm import provider_config
 
 
 @pytest.fixture
@@ -27,6 +29,68 @@ def synthetic_dataset(tmp_path):
     write_json(directory / "manifest.json", manifest)
     write_json(directory / "dev.json", rows)
     return directory
+
+
+@pytest.mark.parametrize(
+    "changed",
+    [
+        provider_config("deepseek"),
+        provider_config("openai", "json_object"),
+        provider_config() | {"base_url": "https://other.example"},
+        provider_config() | {"adapter_version": 2},
+    ],
+)
+def test_policy_rejects_changed_llm_identity(changed):
+    config = {
+        "dataset_hash": "same",
+        "model": "same",
+        "jev_model": "jev-latest",
+        "timeout": 30,
+        "synthetic": True,
+        "sdk_version": "0.1.0",
+        "llm": provider_config(),
+    }
+    policy = {"config": config, "selection_split": "dev", "threshold": 0.8}
+    check_policy(policy, config)
+    with pytest.raises(ValueError, match="LLM provider or response format"):
+        check_policy(policy, config | {"llm": changed})
+    # Old policies belong only to the original OpenAI strict-schema adapter.
+    legacy = {
+        "config": {k: v for k, v in config.items() if k != "llm"},
+        "selection_split": "dev",
+        "threshold": 0.8,
+    }
+    check_policy(legacy, config)
+    with pytest.raises(ValueError, match="LLM provider or response format"):
+        check_policy(legacy, config | {"llm": changed})
+
+
+async def test_resume_rejects_provider_or_format_change_before_calls(tmp_path, synthetic_dataset):
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return jev_response() if request.url.host == "api.typesafe.ai" else llm_response()
+
+    transport = httpx.MockTransport(handler)
+    output = tmp_path / "run"
+    await collect(synthetic_dataset, "dev", output, "same-model", provider="deepseek", transport=transport)
+    await collect(
+        synthetic_dataset,
+        "dev",
+        output,
+        "same-model",
+        provider="deepseek",
+        response_format="json_object",
+        resume=True,
+        transport=transport,
+    )
+    for changes in ({"provider": "kimi"}, {"provider": "deepseek", "response_format": "json_schema"}):
+        with pytest.raises(ValueError, match="configuration differs"):
+            await collect(
+                synthetic_dataset, "dev", output, "same-model", resume=True, transport=transport, **changes
+            )
+    assert len(calls) == 2
 
 
 def llm_response(label="card"):

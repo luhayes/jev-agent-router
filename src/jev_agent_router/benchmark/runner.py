@@ -20,7 +20,7 @@ from jev_agent_router import (
     Usage,
     __version__,
 )
-from jev_agent_router.openai import OpenAIJSONFallback
+from jev_agent_router.llm import ChatJSONFallback, PROVIDERS, provider_config
 from .data import digest, load_split, read_json, write_json
 
 
@@ -102,6 +102,8 @@ def check_policy(policy, config):
     for key in ("dataset_hash", "model", "jev_model", "timeout", "synthetic", "sdk_version"):
         if policy["config"][key] != config[key]:
             raise ValueError(f"Frozen policy mismatch: {key}")
+    if policy["config"].get("llm", provider_config()) != config.get("llm", provider_config()):
+        raise ValueError("Frozen policy mismatch: LLM provider or response format")
     if policy.get("selection_split") != "dev":
         raise ValueError("Policy must be selected on development data")
     threshold = policy.get("threshold")
@@ -110,23 +112,36 @@ def check_policy(policy, config):
 
 
 async def collect(
-    dataset, split, output, model, timeout=30, delay=0, resume=False, policy_path=None, transport=None
+    dataset,
+    split,
+    output,
+    model,
+    timeout=30,
+    delay=0,
+    resume=False,
+    policy_path=None,
+    transport=None,
+    provider="openai",
+    response_format="auto",
 ):
     if not model.strip() or not 0 < timeout < float("inf") or not 0 <= delay < float("inf"):
         raise ValueError("Require model, positive finite timeout and nonnegative finite delay")
+    llm_config = provider_config(provider, response_format)
+    key_name = PROVIDERS[provider][1]
     manifest, samples = load_split(dataset, split)
     synthetic = manifest.get("synthetic", False)
     if synthetic != (transport is not None):
         raise ValueError(
             "Synthetic datasets require the isolated demo transport; real data requires live providers"
         )
-    if not synthetic and any(not os.getenv(k, "").strip() for k in ("TYPESAFE_API_KEY", "OPENAI_API_KEY")):
-        raise ConfigurationError("Set TYPESAFE_API_KEY and OPENAI_API_KEY in your environment")
+    if not synthetic and any(not os.getenv(k, "").strip() for k in ("TYPESAFE_API_KEY", key_name)):
+        raise ConfigurationError(f"Set TYPESAFE_API_KEY and {key_name} in your environment")
     config = {
         "schema_version": 1,
         "dataset_hash": digest(manifest),
         "split": split,
         "model": model,
+        "llm": llm_config,
         "jev_model": "jev-latest",
         "timeout": timeout,
         "delay": delay,
@@ -176,8 +191,13 @@ async def collect(
         if any(r["truth"] != next(s["label"] for s in samples if s["id"] == r["id"]) for r in records):
             raise ValueError("Result labels differ from dataset")
         async with httpx.AsyncClient(transport=transport) as client:
-            fallback = OpenAIJSONFallback(
-                model=model, api_key="synthetic" if synthetic else None, client=client, timeout=timeout
+            fallback = ChatJSONFallback(
+                provider=provider,
+                response_format=response_format,
+                model=model,
+                api_key="synthetic" if synthetic else None,
+                client=client,
+                timeout=timeout,
             )
             with (output / "results.jsonl").open("a", encoding="utf-8") as stream:
                 for i, sample in enumerate(samples):

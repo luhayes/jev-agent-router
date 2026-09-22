@@ -269,11 +269,13 @@ def render_markdown(report):
         return f"{value * 100:.2f}%" if percentage else f"{value:.4f}"
 
     config = report["run"]["config"]
+    llm = config.get("llm", {"provider": "openai", "response_format": "json_schema"})
     lines = [
         "# " + ("SYNTHETIC DEMO — NOT MODEL PERFORMANCE" if report["synthetic"] else "BANKING77 benchmark"),
         "",
         f"Split: **{config['split']}**. Mode: **{config['mode']}**.",
         f"Models: Jev `{config['jev_model']}`; LLM `{config['model']}`.",
+        f"LLM service: `{llm['provider']}`. Output format: `{llm['response_format']}`.",
         f"Collection started: {report['run']['started_at']}.",
         "",
         f"Selection: {report['selection_status']}.",

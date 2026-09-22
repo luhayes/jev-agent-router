@@ -19,18 +19,24 @@ and does not receive repository API secrets.
 ## Add keys for live evaluation
 
 In the repository, open **Settings → Secrets and variables → Actions → New
-repository secret**, and add:
+repository secret**, and add `TYPESAFE_API_KEY` plus the key for your selected
+LLM service. **An OpenAI key is not required for other providers.**
 
 | Secret name | Value |
 |---|---|
 | `TYPESAFE_API_KEY` | Your TypeSafe API key |
-| `OPENAI_API_KEY` | Your OpenAI API key |
+| `OPENAI_API_KEY` | OpenAI, only for `provider=openai` |
+| `DEEPSEEK_API_KEY` | DeepSeek, only for `provider=deepseek` |
+| `OPENROUTER_API_KEY` | OpenRouter, only for `provider=openrouter` |
+| `GEMINI_API_KEY` | Google AI Studio / Gemini API, only for `provider=gemini` |
+| `MOONSHOT_API_KEY` | Kimi, for `provider=kimi` (international) or `kimi-cn` (China) |
 
 Store keys only in Secrets. **Never paste a key into a dispatch input, pricing
 JSON, source file or issue.** Dispatch settings, logs, summaries and artifacts
 in this public repository should be treated as public.
 
-The workflow supplies secrets only to the paid collection step. Installation,
+The workflow supplies the TypeSafe key and only the selected LLM service key
+to the paid collection step. Other LLM secret variables are empty. Installation,
 input validation, demo and artifact upload do not receive them. There are no
 `pull_request` or `pull_request_target` triggers, checkout does not persist its
 Git credentials, the workflow token has only `contents: read`, and external
@@ -52,10 +58,43 @@ not a reason to print secrets.
 | `standard` | 20 / 385 / 770 | 2,350 | Yes |
 | `full-test` | 20 / 385 / 3,074 | 6,958 | Yes |
 
-All live modes require a `model` supporting strict JSON schema on OpenAI Chat
-Completions, both secrets, and **confirm_paid=true**. Start with `smoke` before
-increasing volume. The small split is exploratory and is not sufficient to
-establish close accuracy equivalence.
+All live modes require a `provider`, an exact `model` ID available to your account,
+that provider's key plus the TypeSafe key, and **confirm_paid=true**. Start with
+`smoke` before increasing volume. Each run tests **one** selected LLM, not every
+provider in the dropdown.
+
+Keep `response_format=auto` initially:
+
+| Provider | Default output format | API base URL |
+|---|---|---|
+| `openai` | `json_schema` | `https://api.openai.com/v1` |
+| `deepseek` | `json_object` | `https://api.deepseek.com` |
+| `openrouter` | `json_schema` | `https://openrouter.ai/api/v1` |
+| `gemini` | `json_schema` | `https://generativelanguage.googleapis.com/v1beta/openai` |
+| `kimi` | `json_object` | `https://api.moonshot.ai/v1` |
+| `kimi-cn` | `json_object` | `https://api.moonshot.cn/v1` |
+
+Use the Kimi endpoint matching the platform that issued your key. The Gemini
+preset uses the Gemini Developer API, not Vertex AI authentication. Model IDs
+are service-specific: OpenRouter usually uses `publisher/model` IDs. Choose a
+model that supports the selected format. OpenRouter requests endpoints that
+support the parameters via `require_parameters=true`. JSON mode gets an explicit
+output instruction; both modes validate the exact allowed label locally.
+Unsupported formats, empty responses, refusals and truncated output count as
+failures. The adapter never silently changes formats or retries paid calls.
+
+For example, a first DeepSeek run needs `TYPESAFE_API_KEY` and `DEEPSEEK_API_KEY`:
+choose `mode=smoke`, `provider=deepseek`, your account's model ID,
+`response_format=auto`, leave `prices_json` empty and `measure_live=false`, and
+check `confirm_paid`. Inspect the smoke report before selecting `small`.
+
+Changing provider, model or output format requires a fresh development evaluation
+and policy. Reports record the provider, API base URL, resolved format and adapter
+version; frozen policies and resume checks reject mismatches. `auto` and an
+explicit selection of the same resolved format are equivalent.
+
+The small split is exploratory and is not sufficient to establish close accuracy
+equivalence.
 
 `measure_live=true` is available for `small`, `standard` and `full-test`. It adds
 one Jev call per test sample and an LLM call for each request needing fallback
@@ -128,7 +167,7 @@ a previous artifact. To continue locally:
 1. Download/extract the artifact and preserve the relative dataset/run folders.
 2. Check out the commit recorded in `provenance.json` and install the project.
 3. Supply keys locally and run the matching `collect --resume` command from the
-   [benchmark walkthrough](README.md), preserving model, timeout, dataset and
+   [benchmark walkthrough](README.md), preserving provider, response format, model, timeout, dataset and
    policy. Use the actual extracted paths.
 4. If a `.running` lock exists after a hard kill, remove it only after confirming
    no collector is active. Hidden lock files are not uploaded by the workflow.
@@ -146,3 +185,15 @@ or publishes them to the JevCalc blog.
 The orchestration validates inputs before paid work, passes values as environment
 variables instead of interpolating them into shell code, and reuses the same
 collector, analyzer and frozen-policy format as local runs.
+
+## Provider references
+
+Presets follow the official API contracts:
+[DeepSeek JSON output](https://api-docs.deepseek.com/guides/json_mode/),
+[OpenRouter structured outputs](https://openrouter.ai/docs/guides/features/structured-outputs),
+[Gemini OpenAI compatibility](https://ai.google.dev/gemini-api/docs/openai),
+[Kimi Chat Completions](https://platform.moonshot.ai/docs/api/chat), and
+[Kimi China quick start](https://platform.moonshot.cn/docs/guide/start-using-kimi-api).
+Compatibility is covered by mock HTTP tests; live provider behavior still needs
+your smoke run. Default reasoning settings, token accounting, caching and billing
+can differ between services. Record those limitations when publishing a comparison.

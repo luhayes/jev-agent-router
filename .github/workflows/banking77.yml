@@ -14,8 +14,27 @@ on:
           - small
           - standard
           - full-test
+      provider:
+        description: 'LLM service (kimi is international; kimi-cn is mainland China)'
+        type: choice
+        default: openai
+        options:
+          - openai
+          - deepseek
+          - openrouter
+          - gemini
+          - kimi
+          - kimi-cn
+      response_format:
+        description: 'auto uses the provider default; select an override only if supported by your model'
+        type: choice
+        default: auto
+        options:
+          - auto
+          - json_schema
+          - json_object
       model:
-        description: 'Live modes: OpenAI model ID supporting strict JSON schema'
+        description: 'Live modes: model ID from the selected provider'
         type: string
         default: ''
       prices_json:
@@ -23,7 +42,7 @@ on:
         type: string
         default: ''
       confirm_paid:
-        description: 'I authorize paid Jev/OpenAI calls for this run (required for live modes)'
+        description: 'I authorize paid Jev/LLM calls for this run (required for live modes)'
         type: boolean
         default: false
       measure_live:
@@ -71,6 +90,8 @@ jobs:
       - name: Validate run settings
         env:
           BENCHMARK_MODE: ${{ inputs.mode }}
+          BENCHMARK_PROVIDER: ${{ inputs.provider }}
+          BENCHMARK_RESPONSE_FORMAT: ${{ inputs.response_format }}
           BENCHMARK_MODEL: ${{ inputs.model }}
           BENCHMARK_PRICES_JSON: ${{ inputs.prices_json }}
           BENCHMARK_CONFIRM_PAID: ${{ inputs.confirm_paid }}
@@ -87,12 +108,18 @@ jobs:
         if: inputs.mode != 'demo'
         env:
           BENCHMARK_MODE: ${{ inputs.mode }}
+          BENCHMARK_PROVIDER: ${{ inputs.provider }}
+          BENCHMARK_RESPONSE_FORMAT: ${{ inputs.response_format }}
           BENCHMARK_MODEL: ${{ inputs.model }}
           BENCHMARK_PRICES_JSON: ${{ inputs.prices_json }}
           BENCHMARK_CONFIRM_PAID: ${{ inputs.confirm_paid }}
           BENCHMARK_MEASURE_LIVE: ${{ inputs.measure_live }}
           TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ inputs.provider == 'openai' && secrets.OPENAI_API_KEY || '' }}
+          DEEPSEEK_API_KEY: ${{ inputs.provider == 'deepseek' && secrets.DEEPSEEK_API_KEY || '' }}
+          OPENROUTER_API_KEY: ${{ inputs.provider == 'openrouter' && secrets.OPENROUTER_API_KEY || '' }}
+          GEMINI_API_KEY: ${{ inputs.provider == 'gemini' && secrets.GEMINI_API_KEY || '' }}
+          MOONSHOT_API_KEY: ${{ (inputs.provider == 'kimi' || inputs.provider == 'kimi-cn') && secrets.MOONSHOT_API_KEY || '' }}
         run: python benchmarks/banking77/run_actions.py
 
       - name: Upload reports and recovery data

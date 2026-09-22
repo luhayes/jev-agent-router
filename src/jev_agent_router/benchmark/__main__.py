@@ -9,6 +9,7 @@ from pathlib import Path
 import httpx
 
 from jev_agent_router import RouterError
+from jev_agent_router.llm import PROVIDERS
 from .data import digest, prepare, write_json
 from .report import DEFAULT_THRESHOLDS, analyze
 from .runner import collect
@@ -122,7 +123,13 @@ def parser():
     run_parser.add_argument("--dataset", required=True, type=Path)
     run_parser.add_argument("--split", choices=("smoke", "dev", "test"), required=True)
     run_parser.add_argument("--output", required=True, type=Path)
-    run_parser.add_argument("--model", required=True, help="OpenAI model supporting strict JSON schema")
+    run_parser.add_argument(
+        "--model", required=True, help="Exact model ID available from the selected provider"
+    )
+    run_parser.add_argument("--provider", choices=tuple(PROVIDERS), default="openai")
+    run_parser.add_argument(
+        "--response-format", choices=("auto", "json_schema", "json_object"), default="auto"
+    )
     run_parser.add_argument("--timeout", type=float, default=30)
     run_parser.add_argument("--delay", type=float, default=0, help="Seconds between samples")
     run_parser.add_argument("--resume", action="store_true")

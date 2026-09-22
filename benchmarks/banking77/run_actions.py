@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from jev_agent_router import ConfigurationError
+from jev_agent_router.llm import PROVIDERS, provider_config
 from jev_agent_router.benchmark.__main__ import demo
 from jev_agent_router.benchmark.data import prepare, write_json
 from jev_agent_router.benchmark.report import analyze, validate_prices
@@ -27,6 +29,8 @@ class Settings:
     model: str
     prices: dict | None
     measure_live: bool
+    provider: str = "openai"
+    response_format: str = "auto"
 
 
 def settings_from_env(env):
@@ -37,9 +41,15 @@ def settings_from_env(env):
         return Settings("demo", "", None, False)
     if env.get("BENCHMARK_CONFIRM_PAID", "false").lower() != "true":
         raise ValueError("Live modes require confirm_paid=true")
+    provider = env.get("BENCHMARK_PROVIDER", "openai")
+    response_format = env.get("BENCHMARK_RESPONSE_FORMAT", "auto")
+    try:
+        provider_config(provider, response_format)
+    except ConfigurationError:
+        raise ValueError("Select a supported provider and response_format") from None
     model = env.get("BENCHMARK_MODEL", "").strip()
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}", model):
-        raise ValueError("Provide a valid OpenAI model ID in model; do not enter credentials")
+        raise ValueError("Provide a valid model ID in model; do not enter credentials")
     live = env.get("BENCHMARK_MEASURE_LIVE", "false").lower() == "true"
     if mode == "smoke" and live:
         raise ValueError("measure_live is available only for small, standard or full-test")
@@ -51,8 +61,8 @@ def settings_from_env(env):
             # Accept only the pricing contract; reject arbitrary extra fields.
             if set(supplied) != {"as_of", "source", "jev", "llm"}:
                 raise ValueError
-            for provider in ("jev", "llm"):
-                if set(supplied[provider]) != {"model", "input_per_million", "output_per_million"}:
+            for tariff in ("jev", "llm"):
+                if set(supplied[tariff]) != {"model", "input_per_million", "output_per_million"}:
                     raise ValueError
             validate_prices(supplied, {"jev_model": "jev-latest", "model": model})
             prices = supplied
@@ -62,12 +72,12 @@ def settings_from_env(env):
             ) from None
     if mode in SIZES:
         if prices is None or any(
-            prices[provider][rate] is None
-            for provider in ("jev", "llm")
+            prices[tariff][rate] is None
+            for tariff in ("jev", "llm")
             for rate in ("input_per_million", "output_per_million")
         ):
             raise ValueError("Benchmark modes require complete verified prices_json before paid collection")
-    return Settings(mode, model, prices, live)
+    return Settings(mode, model, prices, live, provider, response_format)
 
 
 def summary(text):
@@ -103,7 +113,15 @@ async def execute(settings, root=ROOT):
     prepare(root / "data", dev_per_class=dev_count, test_per_class=test_count)
 
     async def collect_split(split, output, policy=None):
-        await collect(root / "data", split, output, settings.model, policy_path=policy)
+        await collect(
+            root / "data",
+            split,
+            output,
+            settings.model,
+            policy_path=policy,
+            provider=settings.provider,
+            response_format=settings.response_format,
+        )
 
     stage("20-sample smoke evaluation")
     await collect_split("smoke", root / "smoke-run")
@@ -142,9 +160,11 @@ async def execute(settings, root=ROOT):
 
 def run(settings, root=ROOT):
     if settings.mode != "demo" and any(
-        not os.getenv(key, "").strip() for key in ("TYPESAFE_API_KEY", "OPENAI_API_KEY")
+        not os.getenv(key, "").strip() for key in ("TYPESAFE_API_KEY", PROVIDERS[settings.provider][1])
     ):
-        raise ValueError("Add repository Actions secrets TYPESAFE_API_KEY and OPENAI_API_KEY")
+        raise ValueError(
+            f"Add repository Actions secrets TYPESAFE_API_KEY and {PROVIDERS[settings.provider][1]}"
+        )
     root.mkdir(parents=True, exist_ok=False)
     write_json(
         root / "provenance.json",
@@ -154,6 +174,7 @@ def run(settings, root=ROOT):
             "run_id": os.getenv("GITHUB_RUN_ID"),
             "run_attempt": os.getenv("GITHUB_RUN_ATTEMPT"),
             "mode": settings.mode,
+            "llm": provider_config(settings.provider, settings.response_format),
             "measure_live": settings.measure_live,
             "started_at": datetime.now(timezone.utc).isoformat(),
         },
