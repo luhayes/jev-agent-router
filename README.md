@@ -64,7 +64,7 @@ python -m jev_agent_router.benchmark demo --output benchmark-results/demo
 ```
 
 See [the BANKING77 walkthrough](benchmarks/banking77/README.md) for live commands,
-pricing assumptions, report interpretation, and Chinese quick-start notes.
+pricing assumptions, report interpretation, and quick-start notes.
 **The included demo and tests are synthetic; no measured model-performance or
 savings claims are shipped.**
 

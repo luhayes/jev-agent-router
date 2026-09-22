@@ -7,21 +7,36 @@ benchmark **never enables telemetry**, including when `JEVCALC_API_KEY` is set.
 The implementation and tests have been exercised with synthetic provider
 responses. **No live model accuracy, latency or savings result is included.**
 
-## 中文快速说明
+## Quick start
 
-目标：验证 Jev + fallback 能否在接近 LLM 准确率时降低分类成本。
-先运行 `demo` 检查安装，再依次执行 `prepare → collect smoke → collect dev → analyze dev → collect test → analyze test`。
+Goal: evaluate whether Jev + fallback can reduce classification costs while
+maintaining accuracy close to the LLM baseline. Run `demo` to check your
+installation, then follow this sequence:
 
-- `demo` 完全离线，使用合成响应和虚构单价，不代表模型效果。
-- `collect` 会调用真实 Jev/OpenAI API 并产生费用；密钥只从环境变量读取。
-- 调参集每类默认 5 条（385 条），测试集每类默认 10 条（770 条），所有请求都保留 77 个候选类别。
-- 先在调参集选择阈值，再使用生成的 `policy.json` 评估测试集。测试集报告不重新搜索阈值。
-- 价格需要自行核实并填写；未知用量/价格保留为空，不算作免费。
-- 离线级联是结果与成本模拟，不输出伪造的级联 P50/P95。需要实际耗时时，用 `collect --policy` 跑真实 Router 链路。
-- 本地结果默认放在已被 Git 忽略的 `benchmark-results/`。发布报告前检查内容；API 密钥、私有数据不应提交。
-- 目前 Router 使用 `jev-latest`，这是可变别名；记录日期并不保证未来逐位复现。
+`prepare → collect smoke → collect dev → analyze dev → collect test → analyze test`
 
-下面的命令使用 Bash。PowerShell 可用 `$env:TYPESAFE_API_KEY` 和 `$env:OPENAI_API_KEY` 设置密钥，并把 `python` 换成你的虚拟环境 Python。
+- `demo` runs entirely offline with synthetic responses and fictional prices.
+  Its results do not represent model performance.
+- `collect` calls the live Jev and OpenAI APIs and incurs charges. API keys are
+  read only from environment variables.
+- The default development split contains 5 examples per class (385 total), and
+  the test split contains 10 per class (770 total). Every request includes all
+  77 candidate classes.
+- Select a threshold on development data, then evaluate the test split using
+  the generated `policy.json`. Test reports do not search for a new threshold.
+- Verify and enter pricing yourself. Unknown usage or prices remain unknown
+  and are not treated as free.
+- Offline cascade replay simulates predictions and costs; it does not report
+  measured cascade P50/P95. Use `collect --policy` to measure the actual Router
+  chain.
+- Store local results in the gitignored `benchmark-results/` directory used
+  below. Review reports before publishing; do not commit API keys or private data.
+- The Router currently uses `jev-latest`, a moving alias. Recording the run date
+  does not guarantee identical results in future runs.
+
+The commands below use Bash. In PowerShell, set keys with
+`$env:TYPESAFE_API_KEY` and `$env:OPENAI_API_KEY`, and use the Python executable
+from your virtual environment.
 
 ## 1. Install and run the no-network demo
 
