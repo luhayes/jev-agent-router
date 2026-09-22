@@ -188,7 +188,7 @@ def test_pipeline_uses_real_collector_and_stops_before_extra_calls(
                             "confidence": confidence,
                             "probabilities": {
                                 "billing": 0.2 if wrong else 0.8,
-                                "technical": 0.8 if wrong else 0.2,
+                                "technical": 0.79 if wrong else 0.19,
                             },
                         }
                     },

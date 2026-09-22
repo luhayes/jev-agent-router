@@ -175,3 +175,32 @@ async def test_nonfinite_confidence_rejected(number):
         assert (
             await api.Router(api_key="key", client=client, fallback=fallback).route("x", CRITERIA)
         ).origin == "fallback"
+
+
+@pytest.mark.parametrize(
+    "probabilities,accepted",
+    [
+        ({"billing": 0.8, "technical": 0.19}, True),
+        ({"billing": 0.81, "technical": 0.2}, True),
+        ({"billing": 0.8, "technical": 0.189999}, False),
+        ({"billing": 0.81, "technical": 0.200001}, False),
+        ({"billing": 0.8, "technical": 0.17}, False),
+        ({"billing": 0.9, "technical": 0.9}, False),
+        ({"billing": 0.99}, False),
+        ({"billing": 0.99, "technical": -0.001}, False),
+        ({"billing": 1.01, "technical": 0.0}, False),
+        ({"billing": "0.8", "technical": 0.19}, False),
+    ],
+)
+async def test_bounded_probability_sum_compatibility(probabilities, accepted):
+    result = await run(payload(probabilities=probabilities))
+    assert result.origin == ("jev" if accepted else "fallback")
+    if accepted:
+        assert result.probabilities == probabilities  # Never normalize away evidence.
+        assert result.confidence == 0.81
+
+
+async def test_sum_allowance_does_not_override_confidence_gate():
+    result = await run(payload(confidence=0.3, probabilities={"billing": 0.8, "technical": 0.19}))
+    assert result.origin == "fallback"
+    assert result.reason == "low_confidence"

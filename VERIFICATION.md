@@ -150,3 +150,27 @@ An initial Ruff run found compact test formatting violations; formatting correct
   and report output. Actions tests exercise standard-mode success and early-stop
   paths, nonzero exits, stage summaries and artifact status. Ruff and diff checks
   passed. No paid requests were made and no user workflow was rerun.
+
+## Bounded probability-sum compatibility — 2026-09-22
+
+- A subsequent user log identifies the smoke stop: HTTP 200, no LLM failures,
+  and one Jev `invalid_probability_sum` totaling `0.9900000000000001`.
+- Replaced the strict `1e-6` sum test with an explicit absolute allowance of
+  `0.01`, plus `1e-12` for boundary arithmetic. This is a compatibility decision
+  for the observed response, not a claim that a 1% discrepancy is machine epsilon
+  or that TypeSafe guarantees a particular rounding rule. The official Choice
+  documentation describes a sum of one without a precision specification.
+- Individual probability bounds, finite numeric values, complete label keys,
+  allowed choice and independent confidence gating remain enforced. No values
+  are normalized. Original sums remain in diagnostics. Totals outside the new
+  bounded range still fail and can stop smoke.
+- Run configuration, frozen policies and Markdown reports record the tolerance.
+  Resume and policy checks reject changes or mixing old strict results with the
+  revised collector. Existing artifact data is not edited or reclassified.
+- Full local suite: **177 passed, 6 skipped**. Regression cases cover both sum
+  boundaries, out-of-range totals and individual probabilities, missing labels,
+  confidence gating, unchanged raw values and policy/resume incompatibility.
+  Standard-mode orchestration tests now use distributions totaling 0.99 and
+  verify progression through dev/test/live when no other failure occurs.
+- Ruff and `git diff --check` passed. No live API calls or paid workflow reruns
+  were made; production verification requires a new main-branch dispatch.

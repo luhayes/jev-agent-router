@@ -137,8 +137,10 @@ does not count as a provider failure.
 
 The log prints per-provider failure counts and sanitized Jev diagnostics:
 HTTP status, original Jev reason, an error code, and probability sum when available.
-`invalid_probability_sum` identifies the existing distribution-sum validation;
-it does not silently relax that check or normalize invalid responses. Valid usage
+`invalid_probability_sum` identifies a total outside the documented compatibility
+range `[0.99, 1.01]` (with `1e-12` for floating-point boundary arithmetic).
+All labels must still be present and every probability must be finite and in
+`[0, 1]`. Original probabilities are retained; no normalization is performed. Valid usage
 returned with an invalid answer is preserved; missing usage remains unknown.
 No response bodies, input text, or credentials are added to diagnostics.
 

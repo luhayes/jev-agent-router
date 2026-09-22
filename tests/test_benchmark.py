@@ -345,7 +345,7 @@ async def test_jev_diagnostics_survive_probe_failure(
         elif failure == "labels":
             data["answers"]["route"]["probabilities"] = {"card": 1.0}
         elif failure == "sum":
-            data["answers"]["route"]["probabilities"] = {"card": 0.8, "cash": 0.19}
+            data["answers"]["route"]["probabilities"] = {"card": 0.8, "cash": 0.17}
         elif failure == "usage":
             data["usage"]["input_tokens"] = "SECRET_PROVIDER_BODY"
         return httpx.Response(200, json=data)
@@ -362,7 +362,7 @@ async def test_jev_diagnostics_survive_probe_failure(
     if failure != "auth":
         assert jev["outcome_reason"] == "fallback_failed"
     if failure == "sum":
-        assert jev["probability_sum"] == pytest.approx(0.99)
+        assert jev["probability_sum"] == pytest.approx(0.97)
     assert row["llm"]["status"] == "ok"
     report = analyze(out, tmp_path / "report")
     assert report["errors"][0]["jev_error"] == code
@@ -372,3 +372,31 @@ async def test_jev_diagnostics_survive_probe_failure(
     assert "not measured (replay)" in markdown
     assert "N/A (no Jev-accepted requests)" in markdown
     assert "SECRET_PROVIDER_BODY" not in json.dumps(row) + markdown
+
+
+async def test_sum_tolerance_is_frozen_and_resume_cannot_mix_old_rules(tmp_path, synthetic_dataset):
+    def handler(request):
+        return (
+            jev_response(probabilities={"card": 0.8, "cash": 0.19})
+            if request.url.host == "api.typesafe.ai"
+            else llm_response()
+        )
+
+    transport = httpx.MockTransport(handler)
+    out = tmp_path / "run"
+    await collect(synthetic_dataset, "dev", out, "synthetic", transport=transport)
+    record = read_records(out / "results.jsonl")[0]
+    assert record["jev"]["status"] == "ok"
+    assert record["jev"]["probability_sum"] == pytest.approx(0.99)
+    run = read_json(out / "run.json")
+    config = run["config"]
+    assert config["jev_probability_sum_tolerance"] == 0.01
+    policy = {"config": config, "selection_split": "dev", "threshold": 0.8}
+    check_policy(policy, config)
+    old_config = {k: v for k, v in config.items() if k != "jev_probability_sum_tolerance"}
+    with pytest.raises(ValueError, match="probability-sum tolerance"):
+        check_policy(policy, old_config)
+    run["config"] = old_config
+    write_json(out / "run.json", run)
+    with pytest.raises(ValueError, match="configuration differs"):
+        await collect(synthetic_dataset, "dev", out, "synthetic", transport=transport, resume=True)

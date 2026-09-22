@@ -12,6 +12,7 @@ import httpx
 
 from jev_agent_router import (
     ConfigurationError,
+    PROBABILITY_SUM_TOLERANCE,
     DecisionEvent,
     FallbackError,
     JevRequestError,
@@ -110,6 +111,9 @@ def check_policy(policy, config):
         raise ValueError("Frozen policy mismatch: LLM provider or response format")
     if policy["config"].get("diagnostics_version", 0) != config.get("diagnostics_version", 0):
         raise ValueError("Frozen policy mismatch: diagnostics version; use the original collector commit")
+    tolerance_key = "jev_probability_sum_tolerance"
+    if policy["config"].get(tolerance_key, 1e-6) != config.get(tolerance_key, 1e-6):
+        raise ValueError("Frozen policy mismatch: Jev probability-sum tolerance; select a new policy")
     if policy.get("selection_split") != "dev":
         raise ValueError("Policy must be selected on development data")
     threshold = policy.get("threshold")
@@ -145,6 +149,7 @@ async def collect(
     config = {
         "schema_version": 1,
         "diagnostics_version": 1,
+        "jev_probability_sum_tolerance": PROBABILITY_SUM_TOLERANCE,
         "dataset_hash": digest(manifest),
         "split": split,
         "model": model,

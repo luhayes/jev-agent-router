@@ -306,3 +306,22 @@ different from a measured zero. JSON/CSV retain null values for missing metrics.
 Diagnostics and usage preservation changed in collector diagnostics version 1.
 For old interrupted runs use their original commit; do not combine old policies
 with new collections or manually fill missing usage with zero.
+
+
+### Probability-sum compatibility
+
+A live smoke run returned HTTP 200 with a validated distribution totaling
+`0.9900000000000001`. The old `1e-6` sum tolerance classified it as an error.
+The router now accepts totals in `[0.99, 1.01]`, with `1e-12` only for arithmetic
+at the boundaries. This is a bounded compatibility policy based on the observed
+response, not proof of rounding or a tolerance guaranteed by TypeSafe. The
+[official Choice documentation](https://docs.typesafe.ai/primitives/choice)
+describes a sum of one without specifying rounding precision.
+
+Every probability must still be finite and within `[0, 1]`, distribution keys
+must exactly match criteria, and the chosen label must be allowed. Greater total
+deviations still fall back. Values are not renormalized, and routing thresholds
+still use the separate API confidence. Diagnostics retain the original total.
+The tolerance is recorded in run configuration and Markdown reports; resume and
+frozen-policy checks reject a changed tolerance. Start a fresh development run
+instead of combining old rejection counts with the revised validation policy.

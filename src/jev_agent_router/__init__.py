@@ -12,6 +12,10 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 from .telemetry import DEFAULT_ENDPOINT, Event, FallbackModel, Telemetry, milliseconds, tokens
 
 __version__ = "0.1.0"
+# Bounded compatibility allowance for observed API totals such as 0.99.
+# This is not a provider guarantee about rounding; preserve the original values.
+PROBABILITY_SUM_TOLERANCE = 0.01
+_PROBABILITY_SUM_EPSILON = 1e-12
 Probability = Annotated[float, Field(strict=True, ge=0, le=1, allow_inf_nan=False)]
 Reason = Literal[
     "confident",
@@ -249,8 +253,8 @@ class Router:
                             raise ValueError("Unknown labels or incomplete distribution")
                         probability_sum = sum(answer.probabilities.values())
                         jev_error = "invalid_probability_sum"
-                        if not math.isclose(probability_sum, 1, rel_tol=0, abs_tol=1e-6):
-                            raise ValueError("Probabilities must sum to one")
+                        if abs(probability_sum - 1.0) > PROBABILITY_SUM_TOLERANCE + _PROBABILITY_SUM_EPSILON:
+                            raise ValueError("Probability sum outside compatibility tolerance")
                         jev_error = None
                         confidence = answer.confidence
                         if answer.confidence >= self.threshold:

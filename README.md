@@ -172,7 +172,7 @@ These are lightweight native tool adapters, not replacements for framework orche
 - HTTP 429 and 5xx (including 529), HTTP transport failures and timeouts go to fallback.
 - Other non-2xx statuses (including 401, 403, 400, 422 and redirects) raise sanitized `JevRequestError`; fallback is not called. Redirect following is disabled.
 - Missing/unknown/malformed Choice answers go to fallback. Confidence and each probability must be numeric, finite, in `[0, 1]`; numeric strings and booleans are rejected.
-- The selected label must be allowed; distribution keys must exactly match all criteria and probabilities sum to one within absolute tolerance `1e-6`.
+- The selected label must be allowed; distribution keys must exactly match all criteria and probabilities sum to one within an absolute compatibility tolerance of `0.01` (plus `1e-12` for boundary arithmetic). Raw probabilities are retained, not normalized. This allowance handles observed API totals such as `0.99`; it is not a provider guarantee about rounding. Confidence gating still uses the separate API `confidence` field.
 - Criteria contain 1–255 nonempty string labels/descriptions. State is text or JSON object/array. Invalid input fails locally before HTTP.
 - Default deadlines are 10 seconds for Jev and 30 seconds for fallback, configurable to positive finite seconds. Both httpx timeout and outer asyncio timeout are applied.
 - Cancellation propagates as `asyncio.CancelledError`, including fallback and AutoGen token cancellation. Async deadlines are cooperative: blocking callbacks or fallbacks that suppress cancellation cannot be forcibly preempted. Use trustworthy nonblocking implementations.
