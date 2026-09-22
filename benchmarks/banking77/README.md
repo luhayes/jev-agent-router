@@ -145,7 +145,9 @@ Outputs:
   models, SDK/Python versions, dataset manifest, dates, configuration, ordered
   sample IDs and completion state.
 - `results.jsonl`: sample ID, truth, predictions, Jev confidence, outcome states,
-  measured elapsed times, separate token usage. No keys or raw provider bodies.
+  measured elapsed times, separate token usage, and sanitized Jev failure
+  diagnostics (original reason, HTTP status, error code and probability sum).
+  No keys or raw provider bodies.
 
 Interrupted runs retain completed rows. Continue with the same command plus
 `--resume`. Configuration mismatches are rejected. To resume a run from before provider
@@ -224,7 +226,8 @@ The probe accepts all valid Jev answers using threshold 0; replay then applies
 candidate thresholds. Transient/malformed Jev results may fall back; HTTP
 401/403/400/422 and redirects follow Router's non-recoverable request-error
 policy. LLM failures remain failures. No branch silently substitutes a correct
-answer. Jev usage may be unavailable on error paths; it remains unknown.
+answer. Valid Jev usage is retained before answer validation so a malformed
+answer does not discard known billing data. Jev usage may be unavailable on error paths; it remains unknown.
 
 Replay cost per sample is Jev cost plus LLM cost **only when replay falls back**.
 The separate collection-cost field includes both calls on **every** sample.
@@ -282,3 +285,24 @@ Sampling, normalized overlap removal and label-description formatting are this
 benchmark's transformations, not changes claimed by the dataset authors.
 The benchmark code follows this repository's MIT license; dataset attribution
 and licensing remain separate.
+
+
+## Diagnosing a stopped Actions run
+
+`standard` begins with the same smoke check as every live mode. A smoke provider
+failure stops later stages, returns a nonzero exit status, and preserves reports.
+The summary distinguishes the requested mode from completed report stages.
+Check the log's failure counts and `jev_error`/`http_status` in `results.jsonl`.
+Jev errors are categorized as HTTP, timeout, network, JSON, usage, answer schema,
+label distribution, or probability-sum errors. The original reason is retained
+even if the paired probe or actual fallback fails. These fields are local observer
+metadata and are not added to the JevCalc telemetry contract.
+
+Cost cells say `unknown (usage or price missing)` when a full estimate cannot be
+made. `N/A (no Jev-accepted requests)` means the accepted-error denominator is
+zero; `not measured (replay)` denotes unmeasured cascade latency. These are
+different from a measured zero. JSON/CSV retain null values for missing metrics.
+
+Diagnostics and usage preservation changed in collector diagnostics version 1.
+For old interrupted runs use their original commit; do not combine old policies
+with new collections or manually fill missing usage with zero.

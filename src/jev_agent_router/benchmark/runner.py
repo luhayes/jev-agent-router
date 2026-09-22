@@ -84,15 +84,19 @@ async def measure_router(router, request, capture):
             "label": None,
             "status": "request_error" if isinstance(exc, JevRequestError) else "recoverable_error",
             "origin": "error",
-            "reason": capture.event.reason if capture.event else "unknown",
+            "reason": capture.event.jev_reason if capture.event else "unknown",
+            "outcome_reason": capture.event.reason if capture.event else "unknown",
             "confidence": None,
-            "usage": Usage().model_dump(),
+            "usage": capture.event.jev_usage.model_dump() if capture.event else Usage().model_dump(),
             "fallback_usage": None,
         }
         if isinstance(exc, JevRequestError):
             result["http_status"] = exc.status_code
     result["elapsed_ms"] = (perf_counter() - start) * 1000
     if capture.event:
+        result["jev_error"] = capture.event.jev_error
+        result["http_status"] = capture.event.jev_http_status
+        result["probability_sum"] = capture.event.jev_probability_sum
         result["jev_ms"] = capture.event.jev_ms
         result["fallback_ms"] = capture.event.fallback_ms
     return result
@@ -104,6 +108,8 @@ def check_policy(policy, config):
             raise ValueError(f"Frozen policy mismatch: {key}")
     if policy["config"].get("llm", provider_config()) != config.get("llm", provider_config()):
         raise ValueError("Frozen policy mismatch: LLM provider or response format")
+    if policy["config"].get("diagnostics_version", 0) != config.get("diagnostics_version", 0):
+        raise ValueError("Frozen policy mismatch: diagnostics version; use the original collector commit")
     if policy.get("selection_split") != "dev":
         raise ValueError("Policy must be selected on development data")
     threshold = policy.get("threshold")
@@ -138,6 +144,7 @@ async def collect(
         raise ConfigurationError(f"Set TYPESAFE_API_KEY and {key_name} in your environment")
     config = {
         "schema_version": 1,
+        "diagnostics_version": 1,
         "dataset_hash": digest(manifest),
         "split": split,
         "model": model,

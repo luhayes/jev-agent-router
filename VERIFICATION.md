@@ -124,3 +124,29 @@ An initial Ruff run found compact test formatting violations; formatting correct
   Actions guide. No live provider calls or GitHub-hosted workflow run were made;
   account access, model-specific support, latency, accuracy and billing need a
   real smoke evaluation with user-managed credentials.
+
+
+## Preserve smoke failure diagnostics — 2026-09-22
+
+- Investigated run 35704948552: its standard-mode inputs and pricing were valid,
+  but it stopped after smoke. User-supplied rows show three recoverable Jev errors
+  with missing usage; all 20 independent LLM requests succeeded. The old collector
+  discarded the original cause, so the underlying three failures remain unproven.
+- Local DecisionEvent metadata now retains the original Jev reason, a bounded
+  error code, HTTP status, validated usage and probability sum. The benchmark
+  separates that cause from the terminal fallback outcome. No raw response bodies
+  or new JevCalc telemetry fields are introduced. Routing and probability-sum
+  acceptance rules are unchanged.
+- Valid usage is read before answer validation and retained on invalid-answer
+  paths. Missing or invalid usage is still unknown, never inferred as zero.
+  Collector diagnostics version 1 prevents mixing new collections with old runs
+  or frozen policies. Old artifacts remain readable but cannot recover lost data.
+- Early stops now return nonzero, print failure diagnostics, and prepend a summary
+  with requested mode, incomplete status and completed report stages. The existing
+  always-run artifact upload remains in place. Missing cost, replay latency and
+  inapplicable accepted-error rates now have separate Markdown labels.
+- Local suite: **165 passed, 6 skipped**. Added ten HTTP/transport/validation error
+  cases covering sanitized diagnostics, original cause preservation, usage retention
+  and report output. Actions tests exercise standard-mode success and early-stop
+  paths, nonzero exits, stage summaries and artifact status. Ruff and diff checks
+  passed. No paid requests were made and no user workflow was rerun.

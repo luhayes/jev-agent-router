@@ -129,7 +129,15 @@ async def test_observer_metadata_only_and_nonfatal():
         "fallback_ms",
         "input_tokens",
         "output_tokens",
+        "jev_reason",
+        "jev_error",
+        "jev_http_status",
+        "jev_usage",
+        "jev_probability_sum",
     }
+    assert event.jev_error is None
+    assert event.jev_http_status == 200
+    assert event.jev_reason == "confident"
     assert "private" not in event.model_dump_json()
     assert "secret" not in event.model_dump_json()
 

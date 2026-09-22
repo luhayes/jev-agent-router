@@ -91,6 +91,23 @@ def stage(name):
     print(f"Stage: {name}", flush=True)
 
 
+def report_smoke_failures(report):
+    lines = ["### Smoke failures", "", "| Provider | Failed requests |", "|---|---:|"]
+    for row in report["summaries"][:2]:
+        # Counts come from recorded errors, not rounded percentages.
+        failed = [r for r in report["errors"] if r["strategy"] == row["strategy"] and r["status"] != "ok"]
+        lines.append(f"| {row['strategy']} | {len(failed)} |")
+        print(f"Smoke failures: {row['strategy']}={len(failed)}", flush=True)
+        for error in failed:
+            detail = (
+                f"{error['id']} / {error['strategy']}: status={error['status']}; "
+                f"reason={error.get('reason')}; diagnostic={error.get('jev_error')}; "
+                f"HTTP={error.get('http_status')}; probability_sum={error.get('probability_sum')}"
+            )
+            print(detail, flush=True)
+    summary("\n".join(lines))
+
+
 def append_report(path):
     if path.exists():
         summary(path.read_text(encoding="utf-8"))
@@ -123,11 +140,16 @@ async def execute(settings, root=ROOT):
             response_format=settings.response_format,
         )
 
-    stage("20-sample smoke evaluation")
+    summary(
+        f"**Requested run mode:** `{settings.mode}`. "
+        "Smoke is the first stage of every live run. Standard does not skip smoke."
+    )
+    stage(f"20-sample smoke evaluation (requested mode: {settings.mode})")
     await collect_split("smoke", root / "smoke-run")
     smoke = analyze(root / "smoke-run", root / "smoke-report", prices_path=prices_path)
     append_report(root / "smoke-report/report.md")
     if any(r["request_failure_rate"] > 0 for r in smoke["summaries"][:2]):
+        report_smoke_failures(smoke)
         summary(
             "**Stopped after smoke:** provider failures were recorded. Inspect the artifacts before another paid run."
         )
@@ -191,6 +213,13 @@ def run(settings, root=ROOT):
         summary(
             f"**Run status:** `{outcome}`. Download the `banking77-...` artifact for reports and recovery data."
         )
+        if outcome.startswith("stopped_"):
+            print(
+                "::error::Evaluation stopped before completion. Inspect the summary and saved reports; "
+                "start a new Run workflow on main after fixing the cause.",
+                flush=True,
+            )
+            return 2
         return 0
     except BaseException:
         summary(
@@ -198,10 +227,34 @@ def run(settings, root=ROOT):
         )
         raise
     finally:
+        completed = [
+            name
+            for name in ("smoke", "dev", "test", "live")
+            if (root / f"{name}-report/report.json").exists()
+        ]
+        complete = outcome.startswith("completed_")
+        target = os.getenv("GITHUB_STEP_SUMMARY")
+        if target:
+            path = Path(target)
+            previous = path.read_text(encoding="utf-8") if path.exists() else ""
+            path.write_text(
+                f"# Requested mode: {settings.mode} — {'COMPLETED' if complete else 'INCOMPLETE'}\n\n"
+                f"**Outcome:** `{outcome}`. Completed report stages: {', '.join(completed) or 'none'}.\n\n"
+                + (
+                    "**The requested evaluation did not finish. Later stages were not completed.**\n\n"
+                    if not complete
+                    else ""
+                )
+                + previous,
+                encoding="utf-8",
+            )
         write_json(
             root / "status.json",
             {
                 "status": outcome,
+                "requested_mode": settings.mode,
+                "complete": complete,
+                "completed_report_stages": completed,
                 "finished_at": datetime.now(timezone.utc).isoformat(),
             },
         )

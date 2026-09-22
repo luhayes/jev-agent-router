@@ -147,7 +147,7 @@ def test_workflow_manual_trigger_secret_scope_and_artifact_allowlist():
 )
 @pytest.mark.parametrize("provider", list(PROVIDERS))
 def test_pipeline_uses_real_collector_and_stops_before_extra_calls(
-    tmp_path, monkeypatch, failure, expected, splits, provider
+    tmp_path, monkeypatch, capsys, failure, expected, splits, provider
 ):
     calls, collected = [], []
     criteria = {"billing": "Billing", "technical": "Technical"}
@@ -216,11 +216,30 @@ def test_pipeline_uses_real_collector_and_stops_before_extra_calls(
         monkeypatch.setenv(key, "SECRET_SENTINEL_DO_NOT_UPLOAD")
     monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(tmp_path / "summary.md"))
     settings = actions.settings_from_env(
-        env() | {"BENCHMARK_MEASURE_LIVE": "true", "BENCHMARK_PROVIDER": provider}
+        env("standard") | {"BENCHMARK_MEASURE_LIVE": "true", "BENCHMARK_PROVIDER": provider}
     )
     output = tmp_path / "results"
-    assert actions.run(settings, output) == 0
+    assert actions.run(settings, output) == (0 if failure is None else 2)
     assert read_json(output / "status.json")["status"] == expected
+    status = read_json(output / "status.json")
+    assert status["requested_mode"] == "standard"
+    assert status["complete"] == (failure is None)
+    assert status["completed_report_stages"] == (
+        ["smoke", "dev", "test", "live"]
+        if failure is None
+        else ["smoke"]
+        if failure == "smoke"
+        else ["smoke", "dev"]
+    )
+    summary_text = (tmp_path / "summary.md").read_text()
+    assert summary_text.startswith(
+        "# Requested mode: standard — " + ("COMPLETED" if failure is None else "INCOMPLETE")
+    )
+    logs = capsys.readouterr().out
+    if failure == "smoke":
+        assert "Smoke failures: jev=4" in logs
+        assert "diagnostic=http_error; HTTP=401" in logs
+        assert "::error::Evaluation stopped" in logs
     assert collected == splits
     assert read_json(output / "smoke-run/run.json")["config"]["llm"] == provider_config(provider)
     assert f"LLM service: `{provider}`" in (output / "smoke-report/report.md").read_text()

@@ -89,6 +89,12 @@ class Decision(Record):
     fallback_usage: Usage | None = None
 
 
+JevErrorCode = Literal[
+    "http_error", "timeout", "network_error", "invalid_json", "invalid_usage",
+    "invalid_answer", "invalid_labels", "invalid_probability_sum",
+]
+
+
 class DecisionEvent(Record):
     origin: Literal["jev", "fallback", "error", "cancelled"]
     reason: Reason
@@ -96,6 +102,12 @@ class DecisionEvent(Record):
     fallback_ms: float
     input_tokens: int | None
     output_tokens: int | None
+    # Local observer diagnostics only; not added to the telemetry payload.
+    jev_reason: Reason | None = None
+    jev_error: JevErrorCode | None = None
+    jev_http_status: int | None = None
+    jev_usage: Usage = Field(default_factory=Usage)
+    jev_probability_sum: float | None = None
 
 
 class Observer(Protocol):
@@ -213,25 +225,33 @@ class Router:
         origin, reason = "error", "invalid_response"
         status_code, confidence, fallback_model = None, None, None
         fallback_started = False
+        jev_reason, jev_error, probability_sum = None, None, None
         try:
             try:
                 async with asyncio.timeout(self.jev_timeout):
                     response = await self._post(request)
                 status_code = response.status_code
                 if response.status_code == 429 or response.status_code >= 500:
-                    reason = "jev_transient_error"
+                    reason, jev_error = "jev_transient_error", "http_error"
                 elif not 200 <= response.status_code < 300:
-                    reason = "jev_request_error"
+                    reason, jev_error = "jev_request_error", "http_error"
                     raise JevRequestError(response.status_code)
                 else:
                     try:
+                        jev_error = "invalid_json"
                         data = response.json()
+                        jev_error = "invalid_usage"
+                        usage = Usage.model_validate(data.get("usage", {})) if isinstance(data, dict) else Usage()
+                        jev_error = "invalid_answer"
                         answer = _Answer.model_validate(data["answers"]["route"])
+                        jev_error = "invalid_labels"
                         if answer.choice not in allowed or set(answer.probabilities) != allowed:
                             raise ValueError("Unknown labels or incomplete distribution")
-                        if not math.isclose(sum(answer.probabilities.values()), 1, rel_tol=0, abs_tol=1e-6):
+                        probability_sum = sum(answer.probabilities.values())
+                        jev_error = "invalid_probability_sum"
+                        if not math.isclose(probability_sum, 1, rel_tol=0, abs_tol=1e-6):
                             raise ValueError("Probabilities must sum to one")
-                        usage = Usage.model_validate(data.get("usage", {}))
+                        jev_error = None
                         confidence = answer.confidence
                         if answer.confidence >= self.threshold:
                             origin, reason = "jev", "confident"
@@ -246,9 +266,12 @@ class Router:
                         reason = "low_confidence"
                     except (ValueError, KeyError, TypeError):
                         reason = "invalid_response"
-            except (httpx.RequestError, TimeoutError):
-                reason = "jev_transient_error"
+            except (httpx.TimeoutException, TimeoutError):
+                reason, jev_error = "jev_transient_error", "timeout"
+            except httpx.RequestError:
+                reason, jev_error = "jev_transient_error", "network_error"
             finally:
+                jev_reason = reason
                 jev_ms = (perf_counter() - start) * 1000
             if self.fallback is None:
                 reason = "no_fallback"
@@ -307,6 +330,11 @@ class Router:
                     fallback_ms=fallback_ms,
                     input_tokens=total(usage.input_tokens, fallback_usage.input_tokens),
                     output_tokens=total(usage.output_tokens, fallback_usage.output_tokens),
+                    jev_reason=jev_reason,
+                    jev_error=jev_error,
+                    jev_http_status=status_code,
+                    jev_usage=usage,
+                    jev_probability_sum=probability_sum,
                 )
                 try:
                     self.observer.on_decision(event)

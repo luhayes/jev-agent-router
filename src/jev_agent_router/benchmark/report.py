@@ -234,6 +234,10 @@ def analyze(
                         "predicted": result["label"],
                         "confidence": result.get("confidence"),
                         "status": result["status"],
+                        "reason": result.get("reason"),
+                        "jev_error": result.get("jev_error"),
+                        "http_status": result.get("http_status"),
+                        "probability_sum": result.get("probability_sum"),
                     }
                 )
     report = {
@@ -263,9 +267,9 @@ def analyze(
 
 
 def render_markdown(report):
-    def number(value, percentage=False):
+    def number(value, percentage=False, missing="unknown (usage or price missing)"):
         if value is None:
-            return "unknown / not measured"
+            return missing
         return f"{value * 100:.2f}%" if percentage else f"{value:.4f}"
 
     config = report["run"]["config"]
@@ -286,7 +290,7 @@ def render_markdown(report):
     for row in report["summaries"]:
         cells = [row["strategy"], str(row["threshold"]) if row["threshold"] is not None else "—"]
         cells += [
-            number(row[k], True)
+            number(row[k], True, missing="N/A (no Jev-accepted requests)")
             for k in (
                 "accuracy",
                 "request_failure_rate",
@@ -298,8 +302,14 @@ def render_markdown(report):
         cells += [
             number(row["cost_per_1000_usd"]),
             number(row["cost_coverage"], True),
-            number(row["p50_ms"]),
-            number(row["p95_ms"]),
+            number(
+                row["p50_ms"],
+                missing="not measured (replay)" if row["strategy"] == "cascade-replay" else "not available",
+            ),
+            number(
+                row["p95_ms"],
+                missing="not measured (replay)" if row["strategy"] == "cascade-replay" else "not available",
+            ),
         ]
         lines.append("| " + " | ".join(cells) + " |")
     frozen = next(
@@ -326,6 +336,8 @@ def render_markdown(report):
         "- Cascade replay has no measured P50/P95. Use a separate live cascade run for wall-clock latency.",
         "- Costs use the supplied USD/token tariffs; cached-input discounts and provider billing adjustments are not modeled.",
         "- Unknown token usage or tariffs stays unknown; known-cost subtotals are not full totals.",
+        "- Valid Jev usage is retained even when answer validation fails; absent usage is never assumed free.",
+        "- N/A means no Jev-accepted requests; not measured (replay) means the live chain was not timed.",
         "- Accuracy Wilson intervals and per-class counts are in report.json; small differences are not proof of equivalence.",
         "- Public benchmark performance does not establish private workload or full-agent task performance.",
         "- jev-latest is a moving alias. Run dates are recorded; exact future reproduction is not guaranteed.",
@@ -341,6 +353,11 @@ def render_markdown(report):
     for row in report["errors"][:10]:
         lines.append(
             f"- `{row['id']}` / {row['strategy']}: expected `{row['truth']}`, got `{row['predicted']}`; confidence={row['confidence']}, status={row['status']}."
+            + (
+                f" reason={row.get('reason')}; diagnostic={row.get('jev_error')}; HTTP={row.get('http_status')}; probability_sum={row.get('probability_sum')}."
+                if row["status"] != "ok"
+                else ""
+            )
         )
     lines += [
         "",

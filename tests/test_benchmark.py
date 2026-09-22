@@ -308,3 +308,67 @@ async def test_no_credentials_no_paid_calls(tmp_path, synthetic_dataset, monkeyp
     with pytest.raises(ValueError, match="Set TYPESAFE_API_KEY"):
         await collect(synthetic_dataset, "dev", output, "model")
     assert not output.exists()
+
+
+@pytest.mark.parametrize(
+    "failure,code,status,usage",
+    [
+        ("rate_limit", "http_error", 429, None),
+        ("server", "http_error", 503, None),
+        ("auth", "http_error", 401, None),
+        ("json", "invalid_json", 200, None),
+        ("schema", "invalid_answer", 200, 20),
+        ("labels", "invalid_labels", 200, 20),
+        ("sum", "invalid_probability_sum", 200, 20),
+        ("usage", "invalid_usage", 200, None),
+        ("network", "network_error", None, None),
+        ("timeout", "timeout", None, None),
+    ],
+)
+async def test_jev_diagnostics_survive_probe_failure(
+    tmp_path, synthetic_dataset, failure, code, status, usage
+):
+    def handler(request):
+        if request.url.host != "api.typesafe.ai":
+            return llm_response()
+        if failure in ("rate_limit", "server", "auth"):
+            return httpx.Response(status, text="SECRET_PROVIDER_BODY")
+        if failure == "network":
+            raise httpx.ConnectError("SECRET_PROVIDER_BODY", request=request)
+        if failure == "timeout":
+            raise httpx.ReadTimeout("SECRET_PROVIDER_BODY", request=request)
+        if failure == "json":
+            return httpx.Response(200, text="SECRET_PROVIDER_BODY")
+        data = jev_response().json()
+        if failure == "schema":
+            data["answers"]["route"]["confidence"] = "SECRET_PROVIDER_BODY"
+        elif failure == "labels":
+            data["answers"]["route"]["probabilities"] = {"card": 1.0}
+        elif failure == "sum":
+            data["answers"]["route"]["probabilities"] = {"card": 0.8, "cash": 0.19}
+        elif failure == "usage":
+            data["usage"]["input_tokens"] = "SECRET_PROVIDER_BODY"
+        return httpx.Response(200, json=data)
+
+    out = tmp_path / "run"
+    await collect(synthetic_dataset, "dev", out, "synthetic", transport=httpx.MockTransport(handler))
+    row = read_records(out / "results.jsonl")[0]
+    jev = row["jev"]
+    assert jev["jev_error"] == code
+    assert jev["http_status"] == status
+    assert jev["usage"]["input_tokens"] == usage
+    assert jev["reason"] != "fallback_failed"
+    assert jev["status"] == ("request_error" if failure == "auth" else "recoverable_error")
+    if failure != "auth":
+        assert jev["outcome_reason"] == "fallback_failed"
+    if failure == "sum":
+        assert jev["probability_sum"] == pytest.approx(0.99)
+    assert row["llm"]["status"] == "ok"
+    report = analyze(out, tmp_path / "report")
+    assert report["errors"][0]["jev_error"] == code
+    markdown = (tmp_path / "report/report.md").read_text()
+    assert f"diagnostic={code}" in markdown
+    assert "unknown (usage or price missing)" in markdown
+    assert "not measured (replay)" in markdown
+    assert "N/A (no Jev-accepted requests)" in markdown
+    assert "SECRET_PROVIDER_BODY" not in json.dumps(row) + markdown

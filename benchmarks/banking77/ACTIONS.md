@@ -130,11 +130,34 @@ billing adjustments are not modeled by this benchmark.
 ## Execution and stopping behavior
 
 Live runs prepare the pinned public BANKING77 dataset and then run smoke first.
-If smoke records any provider failure, larger stages stop. Otherwise benchmark
-modes collect development data, select a threshold, freeze the policy, and
+If smoke records any provider failure, larger stages stop. This includes `standard`:
+its first report is always `Split: smoke`, followed by development, test and
+optional live reports only after checks pass. An answered-but-wrong classification
+does not count as a provider failure.
+
+The log prints per-provider failure counts and sanitized Jev diagnostics:
+HTTP status, original Jev reason, an error code, and probability sum when available.
+`invalid_probability_sum` identifies the existing distribution-sum validation;
+it does not silently relax that check or normalize invalid responses. Valid usage
+returned with an invalid answer is preserved; missing usage remains unknown.
+No response bodies, input text, or credentials are added to diagnostics.
+
+The historical paired probe's `fallback_failed` meant its intentional placeholder
+fallback raised. It did not establish that the separately measured LLM failed.
+New rows separate the original Jev reason from `outcome_reason`.
+
+After a fix, use **Run workflow → main** to start with the updated code. **Re-run
+jobs** on an old run reuses that run's old commit. Old artifacts cannot recover
+HTTP status or usage that the old collector discarded. Keep old results unchanged;
+new collectors use `diagnostics_version=1` and reject mixing old run/policy metadata.
+
+When smoke passes, benchmark modes collect development data, select a threshold, freeze the policy, and
 collect/evaluate test data. If no eligible fully priced threshold is selected,
 test and live calls are skipped. This is a valid experimental outcome, not a
-workflow crash; the summary and `status.json` make the stop explicit.
+workflow crash. Early stops return a nonzero exit code so Actions does not show
+an incomplete evaluation as green. Reports are still uploaded by the `always()`
+artifact step. The summary starts with the requested mode, `INCOMPLETE` and the
+completed report stages; `status.json` records the same information.
 
 A selected policy satisfies the configured development accuracy margin (the
 existing default of one percentage point). **It is not guaranteed to save
