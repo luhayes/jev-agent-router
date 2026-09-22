@@ -26,13 +26,12 @@ installation, then follow this sequence:
 - The default development split contains 5 examples per class (385 total), and
   the test split contains 10 per class (770 total). Every request includes all
   77 candidate classes.
-- Select a threshold on development data, then evaluate the test split using
-  the generated `policy.json`. Test reports do not search for a new threshold.
+- Select Jev-only, LLM-only, or a cascade threshold on development data, then
+  evaluate the test split using `policy.json`. Test reports never reselect the strategy.
 - Verify and enter pricing yourself. Unknown usage or prices remain unknown
   and are not treated as free.
 - Offline cascade replay simulates predictions and costs; it does not report
-  measured cascade P50/P95. Use `collect --policy` to measure the actual Router
-  chain.
+  measured cascade P50/P95. Use `collect --policy` to execute the selected strategy live.
 - Store local results in the gitignored `benchmark-results/` directory used
   below. Review reports before publishing; do not commit API keys or private data.
 - The Router currently uses `jev-latest`, a moving alias. Recording the run date
@@ -76,7 +75,7 @@ hashes. It creates:
 | Split | Default source | Size | Purpose |
 |---|---|---:|---|
 | smoke | Training rows not used in dev | 20 | Check credentials and output contract |
-| dev | Training, 5 rows per intent | 385 | Prompt/config checks and threshold selection |
+| dev | Training, 5 rows per intent | 385 | Prompt/config checks and strategy selection |
 | test | Test, 10 rows per intent | 770 | Evaluate the frozen policy |
 
 Identical wording in the training and test sources is excluded from the test
@@ -144,7 +143,7 @@ python -m jev_agent_router.benchmark analyze \
 
 **Paid calls:** paired collection makes one Jev and one LLM request per sample
 (40 for smoke, 770 for dev, 1,540 for the default test split), before any separate
-live-cascade run. Confirm the smoke results before increasing volume. Requests
+live-strategy run. Confirm the smoke results before increasing volume. Requests
 are sequential, with connection reuse; `--delay 0.5` optionally spaces samples.
 Use `--timeout` to set both provider deadlines. No hidden retry loop is added.
 
@@ -166,7 +165,7 @@ recoverable from local results. A process lock blocks simultaneous writers.
 After a hard kill, remove `.running` only when no collector is active. A malformed
 JSONL file is rejected rather than silently dropping records.
 
-## 4. Collect development results and freeze a threshold
+## 4. Collect development results and freeze a strategy
 
 ```bash
 python -m jev_agent_router.benchmark collect \
@@ -188,18 +187,31 @@ python -m jev_agent_router.benchmark analyze \
   --output benchmark-results/dev-report
 ```
 
-The selector chooses the lowest estimated-cost candidate whose **development**
-accuracy is no more than 0.01 below baseline (one percentage point). Ties prefer
-higher accuracy, then a higher threshold. The default margin is an experiment
-setting, **not a guarantee of production quality or statistical equivalence**.
-A selected policy does not necessarily save money; check its cost against the
-baseline. If no fully priced eligible candidate exists, the report explains why
-and **no policy is written**. Unknown costs cannot win the selection.
+The selector compares **Jev-only, LLM-only, and all candidate cascade thresholds**.
+It chooses the lowest estimated-cost candidate whose **development** accuracy is
+no more than 0.01 below the LLM baseline (one percentage point). Ties prefer higher
+accuracy, then single-provider strategies (Jev before LLM), then a higher cascade
+threshold. The default margin is an experiment setting, **not a guarantee of
+production quality or statistical equivalence**. A single-provider winner means
+the development results do not justify paying for a cascade under this rule.
 
-`policy.json` freezes the threshold, dataset/config identity, model, timeout,
+Only candidates with complete cost coverage can win. An incompletely priced LLM
+baseline still supplies its failure-inclusive accuracy constraint; relative
+savings remain unknown. If the LLM baseline is fully priced, it is itself an
+eligible option, so the selected dev cost cannot exceed its cost. This is not a
+test/production savings guarantee. If no fully priced eligible candidate exists,
+the report explains why and **no policy is written**.
+
+`policy.json` schema v2 freezes `strategy` (`jev-only`, `llm-only`, or `cascade`),
+`threshold` (null for a single-provider strategy), dataset/config identity, model, timeout,
 SDK version, pricing, development IDs and development-result hash. Inspect it
 before proceeding. Selection is allowed only for the `dev` split; smoke reports
-are exploratory.
+are exploratory. Legacy schema-v1 policies retain their original cascade meaning.
+
+For diagnosis, the cheapest eligible cascade on dev is also recorded as
+`diagnostic_cascade_threshold`, even if a single-provider strategy wins. It is a
+comparator, not a second deployment policy. If no cascade meets the dev constraint,
+this field is null and test reporting does not invent one.
 
 ## 5. Evaluate the held-out test split
 
@@ -213,7 +225,9 @@ python -m jev_agent_router.benchmark analyze \
   --output benchmark-results/test-report
 ```
 
-Only the frozen threshold is evaluated, even if `--thresholds` is supplied.
+The frozen strategy is evaluated alongside the two single-provider baselines and,
+when present, the single diagnostic cascade threshold frozen on dev. Supplying
+`--thresholds` cannot re-sweep the test set or change the policy.
 Provider, output format, model, dataset, timeout and pricing changes are rejected against the policy.
 Do not tune on the test results and then present the same test set as held out.
 Repeated public-benchmark tuning also weakens the interpretation of held-out
@@ -227,6 +241,7 @@ Each report directory contains:
 | `report.json` | Full provenance, metrics, per-class counts and Wilson accuracy intervals |
 | `metrics.csv` | Flat metrics for plotting or spreadsheets |
 | `errors.json` | All errors with IDs, truth, predictions and confidence where available |
+| `random-controls.json` | Offline controls matching each reported cascade's fallback call count |
 | `policy.json` | Selected/frozen policy, only when available |
 
 All requests, including provider errors, stay in the accuracy denominator. Jev
@@ -243,7 +258,7 @@ The separate collection-cost field includes both calls on **every** sample.
 A partial cost subtotal is not a complete total. Baseline-relative savings are
 only calculated when both full costs are known.
 
-## 6. Measure the actual cascade separately
+## 6. Measure the selected strategy separately
 
 ```bash
 python -m jev_agent_router.benchmark collect \
@@ -257,10 +272,14 @@ python -m jev_agent_router.benchmark analyze \
   --output benchmark-results/live-report
 ```
 
-This executes the existing Router, sequentially calling the LLM only when its
-policy calls for fallback. Its P50/P95 are observed wall-clock measurements
-including fallback overhead. It costs additional provider calls. The exact
-frozen policy must accompany analysis.
+This executes the frozen strategy: Jev-only makes only Jev requests (errors stay
+errors), LLM-only makes only LLM requests, and cascade uses the Router with actual
+fallback calls. Single-provider CLI collection requires only that provider's key;
+paired collection and the complete Actions pipeline still require both keys.
+P50/P95 are observed wall-clock measurements for the selected strategy. This
+costs additional provider calls, and the exact policy must accompany analysis.
+New policy collections use `mode=policy-live`; legacy cascade policies still use
+`mode=cascade-live`. A Jev-only live result is never labeled as a measured cascade.
 
 Paired replay deliberately reports **no cascade P50/P95**; sums of independent
 measurements are not presented as observed chain latency. Live reruns may differ
@@ -268,6 +287,43 @@ in predictions, service load and model version. For a defensible timing comparis
 run baseline and cascade in the same environment/time window, record region and
 network conditions, and repeat if variance is material. Demo timings are never
 model benchmarks.
+
+## Random fallback controls and offline reanalysis
+
+Paired reports compare cascade corrections and regressions against Jev-only, and
+include a deterministic random fallback control (10,000 simulations, seed 42).
+Each simulation matches the cascade's **number of fallback calls**, not its token
+cost. Recoverable Jev errors are forced to fall back in every trial;
+nonrecoverable request errors never fall back. Randomization chooses the same
+number of remaining fallbacks among valid Jev responses, without replacement.
+Failed LLM outputs remain failures. No API calls are made.
+
+Reports show actual corrections/regressions, net correct-answer gain, random
+expected gain, the central 95% simulation range, and the fraction of simulations
+at least as good as the observed cascade. These describe allocations on fixed
+outputs, not fresh independent experiments, a confidence interval for deployment
+performance, or a generalization guarantee. Dev comparisons are exploratory;
+test uses only the dev-frozen diagnostic threshold. Random results never enter
+strategy selection. Single-provider or cascade live runs have no paired outputs
+and therefore no random control.
+
+To reanalyze an existing extracted artifact without additional paid calls:
+
+```bash
+python -m jev_agent_router.benchmark analyze \
+  --run extracted/dev-run --prices extracted/prices.json \
+  --output benchmark-results/reanalysis/dev-report
+python -m jev_agent_router.benchmark analyze \
+  --run extracted/test-run \
+  --policy benchmark-results/reanalysis/dev-report/policy.json \
+  --output benchmark-results/reanalysis/test-report
+```
+
+Keep the original files. This creates a new policy from existing dev records and
+evaluates it on existing paired test records. It does not create a new live
+measurement: old `live-run` results must still be analyzed with the exact original
+policy used to collect them. If test results have already been inspected, label
+the new analysis retrospective rather than untouched held-out validation.
 
 ## Publishing the first case study
 

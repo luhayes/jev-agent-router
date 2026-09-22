@@ -157,23 +157,24 @@ async def execute(settings, root=ROOT):
     if settings.mode == "smoke":
         return "completed_smoke"
 
-    stage("development collection and threshold selection")
+    stage("development collection and strategy selection")
     await collect_split("dev", root / "dev-run")
     dev = analyze(root / "dev-run", root / "dev-report", prices_path=prices_path)
     append_report(root / "dev-report/report.md")
-    if dev["selected_threshold"] is None:
+    if dev["selected_strategy"] is None:
         summary(
-            "**Stopped after development:** no eligible fully priced threshold. Test and live calls were skipped."
+            "**Stopped after development:** no eligible fully priced strategy. Test and live calls were skipped."
         )
         return "stopped_no_policy"
     policy = root / "dev-report/policy.json"
+    print(f"Selected strategy: {dev['selected_strategy']}; threshold={dev['selected_threshold']}", flush=True)
 
     stage("held-out test evaluation with frozen policy")
     await collect_split("test", root / "test-run")
     analyze(root / "test-run", root / "test-report", policy_path=policy)
     append_report(root / "test-report/report.md")
     if settings.measure_live:
-        stage("additional live cascade measurement")
+        stage(f"additional live measurement of selected strategy: {dev['selected_strategy']}")
         await collect_split("test", root / "live-run", policy)
         analyze(root / "live-run", root / "live-report", policy_path=policy)
         append_report(root / "live-report/report.md")

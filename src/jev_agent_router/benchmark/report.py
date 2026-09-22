@@ -6,10 +6,20 @@ from datetime import date
 from pathlib import Path
 
 from .data import digest, read_json, write_json
-from .runner import check_policy, read_records
+from .controls import random_control
+from .runner import check_policy, policy_strategy, read_records
 
 
 DEFAULT_THRESHOLDS = (0.5, 0.6, 0.7, 0.8, 0.9, 0.95)
+
+
+def candidate_key(result):
+    # Prefer simple single-provider policies on exact cost/accuracy ties.
+    return (
+        result["total_cost_usd"], -result["accuracy"],
+        {"jev": 0, "llm": 1, "cascade-replay": 2}[result["strategy"]],
+        -(result["threshold"] if result["threshold"] is not None else 0),
+    )
 
 
 def validate_prices(prices, config):
@@ -175,21 +185,35 @@ def analyze(
         check_policy(policy, config)
     if config["split"] == "test" and not policy:
         raise ValueError("Test reporting requires --policy selected on development data")
-    if config["mode"] == "cascade-live" and (not policy or config["policy_hash"] != digest(policy)):
+    live = config["mode"] in ("cascade-live", "policy-live")
+    if live and (not policy or config["policy_hash"] != digest(policy)):
         raise ValueError("Live reporting requires the exact policy used for collection")
     prices = read_json(prices_path) if prices_path else (policy.get("prices") if policy else None)
     if policy and prices != policy.get("prices"):
         raise ValueError("Prices must match the frozen policy; create a separate experiment to change prices")
     validate_prices(prices, config)
-    if config["mode"] == "cascade-live":
-        summaries = [summarize(rows, "cascade-live", prices, policy["threshold"])]
+    controls = []
+    if live:
+        strategy = policy_strategy(policy)
+        if config.get("strategy", "cascade") != strategy or config["threshold"] != policy["threshold"]:
+            raise ValueError("Live strategy differs from the frozen policy")
+        metric_strategy = {"cascade": "cascade-live", "jev-only": "jev", "llm-only": "llm"}[strategy]
+        summaries = [summarize(rows, metric_strategy, prices, policy["threshold"])]
         experiment_cost = summaries[0]["total_cost_usd"]
         selected = policy
-        selection_status = "frozen policy; live chain measurement"
+        selection_status = "frozen policy; live strategy measurement"
     else:
         baseline, jev = summarize(rows, "llm", prices), summarize(rows, "jev", prices)
-        evaluated = [policy["threshold"]] if policy else thresholds
+        if policy:
+            diagnostic = (
+                policy["threshold"] if policy_strategy(policy) == "cascade"
+                else policy.get("diagnostic_cascade_threshold")
+            )
+            evaluated = [diagnostic] if diagnostic is not None else []
+        else:
+            evaluated = thresholds
         cascades = [summarize(rows, "cascade-replay", prices, t) for t in evaluated]
+        controls = [random_control(rows, t) for t in evaluated]
         summaries = [baseline, jev, *cascades]
         for result in summaries:
             base_cost, result_cost = baseline["total_cost_usd"], result["total_cost_usd"]
@@ -203,15 +227,20 @@ def analyze(
         if not policy and config["split"] == "dev":
             eligible = [
                 r
-                for r in cascades
+                for r in summaries
                 if r["accuracy"] >= baseline["accuracy"] - max_drop and r["total_cost_usd"] is not None
             ]
-            if baseline["total_cost_usd"] is not None and eligible:
-                best = min(eligible, key=lambda r: (r["total_cost_usd"], -r["accuracy"], -r["threshold"]))
+            if eligible:
+                best = min(eligible, key=candidate_key)
+                eligible_cascades = [r for r in eligible if r["strategy"] == "cascade-replay"]
+                diagnostic = min(eligible_cascades, key=candidate_key) if eligible_cascades else None
                 selected = {
-                    "schema_version": 1,
+                    "schema_version": 2,
                     "selection_split": "dev",
+                    "strategy": {"jev": "jev-only", "llm": "llm-only", "cascade-replay": "cascade"}[best["strategy"]],
                     "threshold": best["threshold"],
+                    "diagnostic_cascade_threshold": diagnostic["threshold"] if diagnostic else None,
+                    "selection_rule": "min_cost_within_llm_accuracy_drop_v2",
                     "max_accuracy_drop": max_drop,
                     "config": config,
                     "prices": prices,
@@ -222,8 +251,12 @@ def analyze(
             else:
                 selection_status = "no eligible fully priced candidate; no policy written"
     errors = []
+    error_strategies = (
+        ({"cascade": ("cascade",), "jev-only": ("jev",), "llm-only": ("llm",)}[policy_strategy(policy)])
+        if live else ("jev", "llm")
+    )
     for row in rows:
-        for strategy in ("cascade",) if config["mode"] == "cascade-live" else ("jev", "llm"):
+        for strategy in error_strategies:
             result = row[strategy]
             if result["status"] != "ok" or result["label"] != row["truth"]:
                 errors.append(
@@ -241,20 +274,23 @@ def analyze(
                     }
                 )
     report = {
-        "schema_version": 1,
+        "schema_version": 2,
         "synthetic": config["synthetic"],
         "run": run,
         "selection_status": selection_status,
+        "selected_strategy": policy_strategy(selected) if selected else None,
         "selected_threshold": selected["threshold"] if selected else None,
         "prices": prices,
         "experiment_collection_cost_usd": experiment_cost,
         "summaries": summaries,
+        "random_controls": controls,
         "errors": errors,
     }
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     write_json(output / "report.json", report)
     write_json(output / "errors.json", errors)
+    write_json(output / "random-controls.json", controls)
     if selected:
         write_json(output / "policy.json", selected)
     columns = [k for k in summaries[0] if k not in ("per_class", "accuracy_wilson_95")]
@@ -317,20 +353,53 @@ def render_markdown(report):
             ),
         ]
         lines.append("| " + " | ".join(cells) + " |")
+    selected_metric = {"jev-only": "jev", "llm-only": "llm", "cascade": "cascade-replay"}.get(
+        report["selected_strategy"]
+    )
     frozen = next(
         (
             r
             for r in report["summaries"]
-            if r["strategy"] == "cascade-replay" and r["threshold"] == report["selected_threshold"]
+            if r["strategy"] == selected_metric and r["threshold"] == report["selected_threshold"]
         ),
         None,
     )
-    if frozen:
+    if report["selected_strategy"]:
+        lines += ["", f"Frozen strategy: **{report['selected_strategy']}**."]
+    if frozen and "accuracy_delta_vs_llm" in frozen:
         lines += [
             "",
-            f"Frozen threshold: **{frozen['threshold']}**. Estimated savings vs LLM: "
+            f"Threshold: **{frozen['threshold'] if frozen['threshold'] is not None else 'N/A'}**. Estimated savings vs LLM: "
             f"**{number(frozen.get('savings_vs_llm'), True)}**. Accuracy change: "
             f"**{frozen['accuracy_delta_vs_llm'] * 100:+.2f} percentage points**.",
+        ]
+    if report["random_controls"]:
+        lines += [
+            "", "## Random fallback control (offline)", "",
+            "Diagnostic comparison only; it does not select or change the frozen strategy. "
+            "On test, only the diagnostic cascade threshold frozen on dev is evaluated. "
+            "A cascade row can be a comparator even when the selected strategy is Jev-only or LLM-only.",
+            "",
+            "| Cascade threshold | Fallback calls | Corrections | Regressions | Net correct gain vs Jev | Random expected gain | Random central 95% range | Random fraction >= observed |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+        for control in report["random_controls"]:
+            lo, hi = control["random_net_gain_central_95"]
+            lines.append(
+                f"| {control['threshold']} | {control['fallback_count']} | {control['corrections']} | "
+                f"{control['regressions']} | {control['net_correct_gain']:+d} | "
+                f"{control['random_expected_net_gain']:+.2f} | [{lo}, {hi}] | "
+                f"{control['random_fraction_ge_observed']:.4f} |"
+            )
+        lines += [
+            "",
+            "Random controls use 10,000 simulations with seed 42 on fixed paired outputs. "
+            "They match fallback call count, NOT token cost. Recoverable Jev errors always fall back; "
+            "nonrecoverable request errors never fall back. Only valid Jev answers are randomized. "
+            "Missing/failed LLM outputs remain failures. No API calls or new independent samples are created. "
+            "The range and tail fraction describe random allocations on these records, not a confidence "
+            "interval or proof of generalization. Multiple dev thresholds are exploratory. "
+            "Single-provider live runs have no paired outputs and therefore no random control.",
         ]
     lines += [
         "",

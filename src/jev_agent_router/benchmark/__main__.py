@@ -137,7 +137,7 @@ def parser():
         "--policy",
         dest="policy_path",
         type=Path,
-        help="Measure the actual cascade using a frozen policy instead of paired calls",
+        help="Execute the frozen strategy (Jev-only, LLM-only or cascade) instead of paired calls",
     )
     report_parser = sub.add_parser("analyze", help="Offline analysis; test split requires frozen dev policy")
     report_parser.add_argument("--run", dest="run_dir", type=Path, required=True)

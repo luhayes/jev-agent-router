@@ -103,7 +103,32 @@ async def measure_router(router, request, capture):
     return result
 
 
+def policy_strategy(policy):
+    """Read legacy cascade policies without silently accepting malformed v2 policies."""
+    version = policy.get("schema_version", 1)
+    if type(version) is not int or version not in (1, 2):
+        raise ValueError("Unsupported policy schema version")
+    strategy = policy.get("strategy", "cascade") if version == 1 else policy.get("strategy")
+    if strategy not in ("jev-only", "llm-only", "cascade") or (version == 1 and strategy != "cascade"):
+        raise ValueError("Invalid frozen strategy")
+    threshold = policy.get("threshold")
+    if strategy == "cascade":
+        if isinstance(threshold, bool) or not isinstance(threshold, (float, int)) or not 0 <= threshold <= 1:
+            raise ValueError("Invalid frozen threshold")
+    elif threshold is not None:
+        raise ValueError("Single-provider policies must have a null threshold")
+    diagnostic = policy.get("diagnostic_cascade_threshold")
+    if diagnostic is not None and (
+        isinstance(diagnostic, bool) or not isinstance(diagnostic, (int, float)) or not 0 <= diagnostic <= 1
+    ):
+        raise ValueError("Invalid diagnostic cascade threshold")
+    if strategy == "cascade" and diagnostic is not None and diagnostic != threshold:
+        raise ValueError("Cascade diagnostic must match the selected threshold")
+    return strategy
+
+
 def check_policy(policy, config):
+    policy_strategy(policy)
     for key in ("dataset_hash", "model", "jev_model", "timeout", "synthetic", "sdk_version"):
         if policy["config"][key] != config[key]:
             raise ValueError(f"Frozen policy mismatch: {key}")
@@ -116,9 +141,6 @@ def check_policy(policy, config):
         raise ValueError("Frozen policy mismatch: Jev probability-sum tolerance; select a new policy")
     if policy.get("selection_split") != "dev":
         raise ValueError("Policy must be selected on development data")
-    threshold = policy.get("threshold")
-    if isinstance(threshold, bool) or not isinstance(threshold, (float, int)) or not 0 <= threshold <= 1:
-        raise ValueError("Invalid frozen threshold")
 
 
 async def collect(
@@ -144,8 +166,6 @@ async def collect(
         raise ValueError(
             "Synthetic datasets require the isolated demo transport; real data requires live providers"
         )
-    if not synthetic and any(not os.getenv(k, "").strip() for k in ("TYPESAFE_API_KEY", key_name)):
-        raise ConfigurationError(f"Set TYPESAFE_API_KEY and {key_name} in your environment")
     config = {
         "schema_version": 1,
         "diagnostics_version": 1,
@@ -166,6 +186,17 @@ async def collect(
         check_policy(policy, config)
         config["policy_hash"] = digest(policy)
         config["threshold"] = policy["threshold"]
+        if policy.get("schema_version", 1) == 2:
+            config["mode"] = "policy-live"
+            config["strategy"] = policy_strategy(policy)
+    strategy = config.get("strategy", "cascade" if policy_path else "paired")
+    required_keys = (
+        ("TYPESAFE_API_KEY",) if strategy == "jev-only"
+        else (key_name,) if strategy == "llm-only"
+        else ("TYPESAFE_API_KEY", key_name)
+    )
+    if not synthetic and any(not os.getenv(k, "").strip() for k in required_keys):
+        raise ConfigurationError(f"Set {' and '.join(required_keys)} in your environment")
     output = Path(output)
     if output.exists() and not resume:
         raise ValueError("Run directory exists; use --resume or a new output directory")
@@ -203,7 +234,7 @@ async def collect(
         if any(r["truth"] != next(s["label"] for s in samples if s["id"] == r["id"]) for r in records):
             raise ValueError("Result labels differ from dataset")
         async with httpx.AsyncClient(transport=transport) as client:
-            fallback = ChatJSONFallback(
+            fallback = None if strategy == "jev-only" else ChatJSONFallback(
                 provider=provider,
                 response_format=response_format,
                 model=model,
@@ -221,23 +252,30 @@ async def collect(
                         instructions=manifest["instructions"],
                     )
                     capture = Capture()
-                    async with Router(
-                        api_key="synthetic" if synthetic else None,
-                        client=client,
-                        fallback=fallback if policy_path else unavailable_fallback,
-                        threshold=config.get("threshold", 0),
-                        jev_timeout=timeout,
-                        fallback_timeout=timeout,
-                        observer=capture,
-                    ) as router:
-                        # Alternate call order to reduce systematic warmup/time-of-day bias.
-                        if not policy_path and i % 2:
-                            llm = await measure_llm(fallback, request)
-                        jev = await measure_router(router, request, capture)
-                        if not policy_path and not i % 2:
-                            llm = await measure_llm(fallback, request)
+                    if strategy == "llm-only":
+                        llm = await measure_llm(fallback, request)
+                    else:
+                        async with Router(
+                            api_key="synthetic" if synthetic else None,
+                            client=client,
+                            fallback=fallback if strategy == "cascade" else unavailable_fallback,
+                            threshold=config.get("threshold") or 0,
+                            jev_timeout=timeout,
+                            fallback_timeout=timeout,
+                            observer=capture,
+                        ) as router:
+                            # Alternate paired order; single-provider policies never call the other provider.
+                            if not policy_path and i % 2:
+                                llm = await measure_llm(fallback, request)
+                            jev = await measure_router(router, request, capture)
+                            if not policy_path and not i % 2:
+                                llm = await measure_llm(fallback, request)
                     record = {"id": sample["id"], "truth": sample["label"]}
-                    if policy_path:
+                    if strategy == "llm-only":
+                        record["llm"] = llm
+                    elif strategy == "jev-only":
+                        record["jev"] = jev
+                    elif policy_path:
                         record["cascade"] = jev
                     else:
                         record.update(jev=jev, llm=llm)

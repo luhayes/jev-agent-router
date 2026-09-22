@@ -101,10 +101,11 @@ explicit selection of the same resolved format are equivalent.
 The small split is exploratory and is not sufficient to establish close accuracy
 equivalence.
 
-`measure_live=true` is available for `small`, `standard` and `full-test`. It adds
-one Jev call per test sample and an LLM call for each request needing fallback
-(at most twice the test sample count). It measures the actual Router chain after
-the paired test evaluation. Leave it off for the first run.
+`measure_live=true` is available for `small`, `standard` and `full-test`. It measures
+the **selected strategy** after paired test evaluation: one Jev call per sample
+for Jev-only, one LLM call per sample for LLM-only, or Jev plus any fallback calls
+for cascade (at most twice the test sample count). It does not force a cascade
+when a single provider wins. Leave it off for the first run.
 
 Call counts exclude reruns and interrupted samples. Model token charges still
 apply when running in Actions. The workflow does not enforce a dollar budget;
@@ -158,8 +159,9 @@ jobs** on an old run reuses that run's old commit. Old artifacts cannot recover
 HTTP status or usage that the old collector discarded. Keep old results unchanged;
 new collectors use `diagnostics_version=1` and reject mixing old run/policy metadata.
 
-When smoke passes, benchmark modes collect development data, select a threshold, freeze the policy, and
-collect/evaluate test data. If no eligible fully priced threshold is selected,
+When smoke passes, benchmark modes collect development data, select among
+Jev-only, LLM-only and cascade, freeze the policy, and collect/evaluate test data.
+A null threshold is valid for a selected single-provider policy. If no eligible fully priced strategy is selected,
 test and live calls are skipped. This is a valid experimental outcome, not a
 workflow crash. Early stops return a nonzero exit code so Actions does not show
 an incomplete evaluation as green. Reports are still uploaded by the `always()`
@@ -167,12 +169,14 @@ artifact step. The summary starts with the requested mode, `INCOMPLETE` and the
 completed report stages; `status.json` records the same information.
 
 A selected policy satisfies the configured development accuracy margin (the
-existing default of one percentage point). **It is not guaranteed to save
-money.** Check the report's estimated savings and held-out quality before
-adopting it. Test reporting does not tune thresholds again.
+existing default of one percentage point). A fully priced LLM baseline is itself
+a candidate, so the selected dev cost will not exceed it. **Savings and quality
+are not guaranteed on test or in production.** Test reporting does not reselect
+the strategy or tune thresholds again. Reports include offline random fallback
+controls matching call count, not token cost; see the [methodology](README.md#random-fallback-controls-and-offline-reanalysis).
 
 Synthetic results are labeled throughout. Paired replay has no measured cascade
-P50/P95; actual cascade timings appear only in the optional live measurement.
+P50/P95; the optional live report measures whichever strategy was selected.
 
 ## Reports and interrupted runs
 

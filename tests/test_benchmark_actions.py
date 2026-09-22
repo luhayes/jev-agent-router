@@ -131,6 +131,7 @@ def test_workflow_manual_trigger_secret_scope_and_artifact_allowlist():
             "report.json",
             "metrics.csv",
             "errors.json",
+            "random-controls.json",
             "policy.json",
         }
         for p in paths
@@ -142,7 +143,9 @@ def test_workflow_manual_trigger_secret_scope_and_artifact_allowlist():
     [
         (None, "completed_benchmark", ["smoke", "dev", "test", "test"]),
         ("smoke", "stopped_smoke_failures", ["smoke"]),
-        ("policy", "stopped_no_policy", ["smoke", "dev"]),
+        ("policy", "completed_benchmark", ["smoke", "dev", "test", "test"]),
+        ("jev", "completed_benchmark", ["smoke", "dev", "test", "test"]),
+        ("usage", "stopped_no_policy", ["smoke", "dev"]),
     ],
 )
 @pytest.mark.parametrize("provider", list(PROVIDERS))
@@ -175,7 +178,7 @@ def test_pipeline_uses_real_collector_and_stops_before_extra_calls(
             state = json.loads(request.content)["state"]
             if failure == "smoke":
                 return httpx.Response(401)
-            wrong = failure == "policy" or state.endswith("0")
+            wrong = failure == "policy" or (failure != "jev" and state.endswith("0"))
             label = "technical" if wrong else "billing"
             confidence = 0.99 if failure == "policy" or not wrong else 0.6
             return httpx.Response(
@@ -192,7 +195,7 @@ def test_pipeline_uses_real_collector_and_stops_before_extra_calls(
                             },
                         }
                     },
-                    "usage": {"input_tokens": 20, "output_tokens": 0},
+                    "usage": {} if failure == "usage" else {"input_tokens": 20, "output_tokens": 0},
                 },
             )
         assert str(request.url) == PROVIDERS[provider][0] + "/chat/completions"
@@ -200,7 +203,7 @@ def test_pipeline_uses_real_collector_and_stops_before_extra_calls(
             200,
             json={
                 "choices": [{"finish_reason": "stop", "message": {"content": '{"label":"billing"}'}}],
-                "usage": {"prompt_tokens": 20, "completion_tokens": 5},
+                "usage": {} if failure == "usage" else {"prompt_tokens": 20, "completion_tokens": 5},
             },
         )
 
@@ -219,21 +222,22 @@ def test_pipeline_uses_real_collector_and_stops_before_extra_calls(
         env("standard") | {"BENCHMARK_MEASURE_LIVE": "true", "BENCHMARK_PROVIDER": provider}
     )
     output = tmp_path / "results"
-    assert actions.run(settings, output) == (0 if failure is None else 2)
+    complete = expected == "completed_benchmark"
+    assert actions.run(settings, output) == (0 if complete else 2)
     assert read_json(output / "status.json")["status"] == expected
     status = read_json(output / "status.json")
     assert status["requested_mode"] == "standard"
-    assert status["complete"] == (failure is None)
+    assert status["complete"] == complete
     assert status["completed_report_stages"] == (
         ["smoke", "dev", "test", "live"]
-        if failure is None
+        if complete
         else ["smoke"]
         if failure == "smoke"
         else ["smoke", "dev"]
     )
     summary_text = (tmp_path / "summary.md").read_text()
     assert summary_text.startswith(
-        "# Requested mode: standard — " + ("COMPLETED" if failure is None else "INCOMPLETE")
+        "# Requested mode: standard — " + ("COMPLETED" if complete else "INCOMPLETE")
     )
     logs = capsys.readouterr().out
     if failure == "smoke":
@@ -243,7 +247,14 @@ def test_pipeline_uses_real_collector_and_stops_before_extra_calls(
     assert collected == splits
     assert read_json(output / "smoke-run/run.json")["config"]["llm"] == provider_config(provider)
     assert f"LLM service: `{provider}`" in (output / "smoke-report/report.md").read_text()
-    assert len(calls) == (29 if failure is None else 8 if failure == "smoke" else 16)
+    assert len(calls) == (29 if failure is None else 28 if complete else 8 if failure == "smoke" else 16)
+    if complete:
+        expected_strategy = "llm-only" if failure == "policy" else "jev-only" if failure == "jev" else "cascade"
+        assert read_json(output / "dev-report/policy.json")["strategy"] == expected_strategy
+        assert read_json(output / "live-report/report.json")["selected_strategy"] == expected_strategy
+        if failure in ("policy", "jev"):
+            expected_host = "api.typesafe.ai" if failure == "jev" else calls[1]
+            assert calls[-4:] == [expected_host] * 4
     for file in tmp_path.rglob("*"):
         if file.is_file():
             assert "SECRET_SENTINEL_DO_NOT_UPLOAD" not in file.read_text()

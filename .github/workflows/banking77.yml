@@ -46,7 +46,7 @@ on:
         type: boolean
         default: false
       measure_live:
-        description: 'Benchmark modes: also measure the actual cascade (additional paid calls)'
+        description: 'Benchmark modes: also measure the selected strategy live (additional paid calls)'
         type: boolean
         default: false
 
@@ -144,4 +144,5 @@ jobs:
             benchmark-results/actions/**/report.json
             benchmark-results/actions/**/metrics.csv
             benchmark-results/actions/**/errors.json
+            benchmark-results/actions/**/random-controls.json
             benchmark-results/actions/**/policy.json
