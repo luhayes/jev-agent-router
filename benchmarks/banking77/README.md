@@ -83,9 +83,18 @@ Identical wording in the training and test sources is excluded from the test
 pool (after stripping whitespace and case-folding); the exclusion count is
 recorded. At the pinned revision, 6 overlapping test rows are excluded (3,074
 remain for `--test-per-class 0`). This is not paraphrase deduplication. The manifest stores all 77 labels,
-readable descriptions derived by replacing underscores with spaces, instructions,
+versioned English descriptions reviewed against training examples, instructions,
 seeds, selected IDs and split hashes. The ground-truth label is never sent to a
 provider. Sampling is reproducible within the recorded Python version.
+
+See [category definitions and review notes](CRITERIA.md). In particular, the
+historical `get_physical_card` label refers to obtaining/viewing a card PIN in
+the pinned training data; physical-card ordering is `order_physical_card`.
+Descriptions preserve original labels and are shared by both providers.
+The manifest records their version and text as part of the dataset hash, so
+old policies cannot be used with revised descriptions. Start a new preparation
+and run; longer descriptions may increase token costs. Local `--data-dir` CSVs
+must use the exact BANKING77 category vocabulary.
 
 For an existing local download, use `--data-dir /path/to/banking_data` containing
 `train.csv` and `test.csv`. Local data is identified by content hashes rather than

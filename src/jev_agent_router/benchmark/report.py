@@ -280,6 +280,9 @@ def render_markdown(report):
         f"Split: **{config['split']}**. Mode: **{config['mode']}**.",
         f"Models: Jev `{config['jev_model']}`; LLM `{config['model']}`.",
         f"LLM service: `{llm['provider']}`. Output format: `{llm['response_format']}`.",
+        "Criteria version: "
+        + report["run"]["dataset"].get("criteria_metadata", {}).get("version", "unversioned")
+        + ". Full descriptions are recorded in report.json.",
         f"Jev probability-sum tolerance: ±{config.get('jev_probability_sum_tolerance', 1e-6):g}; "
         "original values retained, confidence gating unchanged.",
         f"Collection started: {report['run']['started_at']}.",

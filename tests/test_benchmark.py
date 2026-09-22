@@ -7,6 +7,7 @@ import httpx
 import pytest
 
 from jev_agent_router.benchmark.__main__ import demo, main
+from jev_agent_router.benchmark.criteria import CRITERIA, CRITERIA_VERSION
 from jev_agent_router.benchmark.data import digest, load_split, prepare, read_json, write_json
 from jev_agent_router.benchmark.report import analyze, cost, replay, summarize
 from jev_agent_router.benchmark.runner import collect, read_records
@@ -154,13 +155,14 @@ async def test_confidence_not_max_probability_and_no_label_leak(tmp_path, synthe
         body = json.loads(request.content)
         if request.url.host == "api.typesafe.ai":
             assert body["state"] == "Please check my card"
-            assert set(body["questions"]["route"]["criteria"]) == {"card", "cash"}
+            assert body["questions"]["route"]["criteria"] == {"card": "Card", "cash": "Cash"}
             assert "truth" not in body and "label" not in body
             return jev_response(confidence=0.55)
         assert request.url.host == "api.openai.com"
         payload = json.loads(body["messages"][1]["content"])
         assert payload["state"] == "Please check my card"
         assert set(payload) == {"state", "criteria"}
+        assert payload["criteria"] == {"card": "Card", "cash": "Cash"}
         return llm_response()
 
     output = tmp_path / "run"
@@ -209,7 +211,7 @@ def test_prepare_deterministic_and_disjoint(tmp_path):
     source.mkdir()
     for split in ("train", "test"):
         text = "text,category\n" + "".join(
-            f"{split} request {label} {i},intent_{label}\n" for label in range(77) for i in range(12)
+            f"{split} request {label} {i},{label}\n" for label in sorted(CRITERIA) for i in range(12)
         )
         (source / f"{split}.csv").write_text(text)
     first, second = tmp_path / "first", tmp_path / "second"
@@ -220,9 +222,58 @@ def test_prepare_deterministic_and_disjoint(tmp_path):
     samples = {s: load_split(first, s)[1] for s in a["splits"]}
     assert not {r["id"] for r in samples["smoke"]} & {r["id"] for r in samples["dev"]}
     assert len(a["criteria"]) == 77
+    assert a["criteria_metadata"]["version"] == CRITERIA_VERSION
+    assert "PIN" in a["criteria"]["get_physical_card"]
+    assert "physical card" in a["criteria"]["order_physical_card"]
+    # Description changes must not rename labels, rewrite texts, or reorder source IDs.
+    source_rows = (source / "train.csv").read_text().splitlines()[1:]
+    for row in samples["dev"]:
+        text, label = source_rows[int(row["id"].split(":")[1])].split(",")
+        assert (row["text"], row["label"]) == (text, label)
     write_json(first / "test.json", [])
     with pytest.raises(ValueError, match="manifest"):
         load_split(first, "test")
+
+
+def test_prepare_rejects_unknown_category_vocabulary(tmp_path):
+    for split in ("train", "test"):
+        (tmp_path / f"{split}.csv").write_text(
+            "text,category\n" + "".join(f"Example,intent_{i}\n" for i in range(77))
+        )
+    with pytest.raises(ValueError, match="versioned BANKING77 criteria"):
+        prepare(tmp_path / "prepared", tmp_path)
+
+
+@pytest.mark.parametrize("change", ["description", "version"])
+async def test_criteria_change_rejects_resume_and_frozen_policy(
+    tmp_path, synthetic_dataset, change
+):
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return jev_response() if request.url.host == "api.typesafe.ai" else llm_response()
+
+    transport = httpx.MockTransport(handler)
+    output = tmp_path / "original"
+    await collect(synthetic_dataset, "dev", output, "same-model", transport=transport)
+    config = read_json(output / "run.json")["config"]
+    policy_path = tmp_path / "policy.json"
+    write_json(policy_path, {"selection_split": "dev", "threshold": 0.5, "config": config})
+    manifest = read_json(synthetic_dataset / "manifest.json")
+    if change == "description":
+        manifest["criteria"]["card"] = "Card PIN lookup"
+    else:
+        manifest["criteria_metadata"] = {"version": "changed"}
+    write_json(synthetic_dataset / "manifest.json", manifest)
+    with pytest.raises(ValueError, match="configuration differs"):
+        await collect(synthetic_dataset, "dev", output, "same-model", transport=transport, resume=True)
+    with pytest.raises(ValueError, match="dataset_hash"):
+        await collect(
+            synthetic_dataset, "dev", tmp_path / "new", "same-model",
+            transport=transport, policy_path=policy_path,
+        )
+    assert len(calls) == 2  # Changes are rejected before any additional provider call.
 
 
 async def test_full_demo_policy_freeze_live_and_unknown_prices(tmp_path):

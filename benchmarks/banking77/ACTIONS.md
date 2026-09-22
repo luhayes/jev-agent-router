@@ -4,6 +4,11 @@ The **BANKING77 benchmark** workflow runs on GitHub-hosted Ubuntu with Python 3.
 It is **manual-only**, defaults to the offline demo, and accepts runs from the
 repository's default branch. Pushes, pull requests and schedules do not start it.
 
+New runs use the [versioned English category descriptions](CRITERIA.md), shared
+by Jev and the selected LLM. After a description update, start **Run workflow**
+on `main` rather than rerunning an old job. Reports show the criteria version;
+new descriptions require fresh calls and a newly selected development policy.
+
 ## First run: no API keys required
 
 1. Open the repository's **Actions** tab.

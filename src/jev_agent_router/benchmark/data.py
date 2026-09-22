@@ -9,6 +9,8 @@ from pathlib import Path
 
 import httpx
 
+from .criteria import CRITERIA, CRITERIA_VERSION
+
 REVISION = "57ec275d8078af65b7731c2a98be812d844a6d6b"
 SOURCE = "https://github.com/PolyAI-LDN/task-specific-datasets"
 INSTRUCTIONS = (
@@ -75,6 +77,8 @@ def prepare(output, data_dir=None, seed=42, dev_per_class=5, test_per_class=10, 
     labels = sorted({r["label"] for r in splits["train"]})
     if len(labels) != 77 or set(labels) != {r["label"] for r in splits["test"]}:
         raise ValueError("Expected the same 77 intents in train and test")
+    if set(labels) != set(CRITERIA):
+        raise ValueError("Dataset labels do not match the versioned BANKING77 criteria")
     # Repeated wording across splits would leak a development example into evaluation.
     train_texts = {r["text"].strip().casefold() for r in splits["train"]}
     clean_test = [r for r in splits["test"] if r["text"].strip().casefold() not in train_texts]
@@ -98,7 +102,13 @@ def prepare(output, data_dir=None, seed=42, dev_per_class=5, test_per_class=10, 
         "source_sha256": hashes,
         "seed": seed,
         "excluded_test_overlap_count": len(splits["test"]) - len(clean_test),
-        "criteria": {label: label.replace("_", " ") for label in labels},
+        "criteria": {label: CRITERIA[label] for label in labels},
+        "criteria_metadata": {
+            "version": CRITERIA_VERSION,
+            "basis": "benchmark-authored descriptions reviewed against pinned training examples",
+            "source_revision": REVISION,
+            "source_train_sha256": "b06e26ac675513959a63135f11b94ea7786ed02da65db93a5650d8838cbc664b",
+        },
         "instructions": INSTRUCTIONS,
         "splits": {name: {"count": len(rows), "sha256": digest(rows)} for name, rows in samples.items()},
     }
