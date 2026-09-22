@@ -6,15 +6,34 @@ from datetime import datetime, timezone
 import json
 import math
 import random
-from typing import Literal
+from typing import Literal, get_args
 from uuid import uuid4
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field
 
 DEFAULT_ENDPOINT = "https://jevcalc.com/api/v1/events"
-FallbackModel = Literal["gpt-4o", "gpt-4o-mini", "gpt-4.1", "gpt-4.1-mini", "other"]
-MODELS = frozenset(("gpt-4o", "gpt-4o-mini", "gpt-4.1", "gpt-4.1-mini"))
+# Closed enum shared with jevcalc-api and the console; see
+# jev-telemetry-contract.md. A model outside MODELS is reported as "other",
+# which the API prices as unknown and excludes from savings — so this list
+# going stale silently disables the savings figure for current models.
+# The gpt-4o/gpt-4.1 entries are retired models kept for historical rows.
+FallbackModel = Literal[
+    "gpt-6-astra",
+    "gpt-5-6-terra",
+    "gpt-5-6-luna",
+    "claude-opus-5",
+    "claude-sonnet-5",
+    "claude-haiku-4-5",
+    "gemini-3-8-flash",
+    "gemini-2-5-flash-lite",
+    "gpt-4o",
+    "gpt-4o-mini",
+    "gpt-4.1",
+    "gpt-4.1-mini",
+    "other",
+]
+MODELS = frozenset(get_args(FallbackModel)) - {"other"}
 
 
 def safe_model(model: str) -> FallbackModel:

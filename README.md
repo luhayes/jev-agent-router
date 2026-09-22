@@ -144,6 +144,14 @@ No analytics upload, telemetry HTTP client or background worker is created unles
 
 ### Optional JevCalc telemetry (MVP; service not deployed)
 
+The event schema is `jev-telemetry-contract.md` v1, which lives in the
+`jevcalc-api` repository and is implemented by three codebases that must change
+together: this SDK's `telemetry.py`, the API's `metrics.ts` and the console's
+mirrored types. `fallback_model` in particular is a closed enum — a model
+outside it is reported as `other`, which the API prices as unknown and excludes
+from savings, so the list going stale silently disables that figure rather than
+failing loudly. `test_fallback_model_enum_matches_shared_contract` pins it.
+
 ```python
 async with Router(
     jev_api_key=provider_key,  # alias of api_key; conflicting values rejected

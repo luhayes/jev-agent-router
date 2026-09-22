@@ -1,5 +1,6 @@
 import asyncio
 import json
+from typing import get_args
 
 import httpx
 import pytest
@@ -179,7 +180,19 @@ async def test_retry_bounded_and_no_redirect(status, expected):
     assert all(r.content == sent[0].content for r in sent)
 
 
-@pytest.mark.parametrize("model,expected", [("private-custom-model", "other"), ("gpt-4o", "gpt-4o")])
+@pytest.mark.parametrize(
+    "model,expected",
+    [
+        ("private-custom-model", "other"),
+        # Retired but still in the enum so historical rows keep pricing.
+        ("gpt-4o", "gpt-4o"),
+        # Current models must pass through rather than collapse to "other";
+        # "other" prices as unknown and drops the event from savings entirely.
+        ("gpt-5-6-terra", "gpt-5-6-terra"),
+        ("claude-haiku-4-5", "claude-haiku-4-5"),
+        ("gemini-2-5-flash-lite", "gemini-2-5-flash-lite"),
+    ],
+)
 async def test_fallback_confidence_usage_model_privacy(model, expected):
     from jev_agent_router.openai import OpenAIJSONFallback
 
@@ -356,3 +369,32 @@ async def test_batch_event_limit_local_endpoint_and_unknown_usage():
     for e in events:
         assert str(UUID(e["event_id"])) == e["event_id"]
         assert datetime.fromisoformat(e["occurred_at"]).tzinfo == timezone.utc
+
+
+def test_fallback_model_enum_matches_shared_contract():
+    """The enum is one contract with jevcalc-api's rates table and the console.
+
+    Kept as an explicit list rather than derived, so that widening the enum in
+    one repository without the others fails here instead of silently shipping
+    events the API rejects, or models that price as unknown.
+    """
+    from jev_agent_router.telemetry import MODELS, FallbackModel
+
+    assert set(get_args(FallbackModel)) == {
+        "gpt-6-astra",
+        "gpt-5-6-terra",
+        "gpt-5-6-luna",
+        "claude-opus-5",
+        "claude-sonnet-5",
+        "claude-haiku-4-5",
+        "gemini-3-8-flash",
+        "gemini-2-5-flash-lite",
+        "gpt-4o",
+        "gpt-4o-mini",
+        "gpt-4.1",
+        "gpt-4.1-mini",
+        "other",
+    }
+    # "other" is the sentinel for an unlisted model, never a reportable one.
+    assert "other" not in MODELS
+    assert MODELS == set(get_args(FallbackModel)) - {"other"}
