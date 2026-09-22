@@ -51,3 +51,27 @@ These are explicitly synthetic MockTransport fixtures, not observed Jev service 
 No user API credentials were provided. Live Jev/OpenAI connectivity, deployed model schema support, decision accuracy, pricing, latency and savings remain **unverified**. No SaaS control plane exists. Score/Noul and automatic action execution are intentionally absent. Optional package version ranges are not an exhaustive compatibility certification.
 
 An initial Ruff run found compact test formatting violations; formatting corrected these and the subsequent lint and complete suite passed. CrewAI installation brought substantial optional dependencies and constrained Pydantic to 2.12.5; this is isolated to `.venv`, not the global Python environment.
+
+## BANKING77 benchmark addition — 2026-09-22
+
+- Added local `prepare`, `collect`, `analyze`, and synthetic `demo` commands,
+  available as `python -m jev_agent_router.benchmark` / `jev-benchmark`.
+- Downloaded the real public BANKING77 CSVs at pinned commit
+  `57ec275d8078af65b7731c2a98be812d844a6d6b`; validated 77 intents and generated
+  deterministic 20/385/770 smoke/dev/test splits. Six normalized test texts also
+  present in training were excluded before test sampling. No model was called.
+- Full suite: **97 passed, 6 skipped** (optional integration dependencies absent).
+  The 16 benchmark test cases cover HTTP error replay policy, malformed responses,
+  failed fallback, confidence vs option probability, no label/telemetry leakage,
+  missing-cost handling, deterministic/disjoint sampling, dev-only selection,
+  frozen test policy, interrupted-run resume, invalid thresholds and key preflight.
+- Ruff passed for the benchmark implementation and its tests; `git diff --check`
+  passed. Wheel and source distribution built successfully. Installed the wheel in
+  an isolated environment and exercised the console help and complete synthetic
+  dev/test/live demo, including report generation.
+- `TYPESAFE_API_KEY` and `OPENAI_API_KEY` were unavailable. **No live provider
+  accuracy, latency, cost, or savings measurements were performed.** Synthetic
+  reports and prices must not be represented as real model results.
+- Local downloaded data, run artifacts and reports are gitignored. No API keys,
+  private workload data, generated benchmark results or JevCalc uploads are part
+  of this change.

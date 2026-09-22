@@ -49,6 +49,25 @@ uv pip install --python .venv/bin/python -e '.[dev]'
 
 The example uses **synthetic fixtures through httpx.MockTransport**, with a high-confidence Jev-path result and a low-confidence fallback-path result. It makes no live requests and uses no real key. The fallback is an explicit review policy, not a simulated LLM response.
 
+## Reproducible BANKING77 benchmark
+
+Compare a structured-output LLM, Jev alone, and confidence-gated Jev + the same
+LLM fallback on labeled public data. The local benchmark includes pinned data,
+seeded development/test splits, resumable paired collection, development-only
+threshold selection, held-out reporting, and separate live cascade measurement.
+No JevCalc account is required and benchmark telemetry is always disabled.
+
+Start with an explicitly synthetic, no-network demo:
+
+```bash
+python -m jev_agent_router.benchmark demo --output benchmark-results/demo
+```
+
+See [the BANKING77 walkthrough](benchmarks/banking77/README.md) for live commands,
+pricing assumptions, report interpretation, and Chinese quick-start notes.
+**The included demo and tests are synthetic; no measured model-performance or
+savings claims are shipped.**
+
 ## Agent Skill (Codex / Claude Code / OpenClaw / pi / Hermes)
 
 The portable [jev-router Skill](skills/jev-router/SKILL.md) teaches when and how to

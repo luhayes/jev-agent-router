@@ -9,3 +9,6 @@ dist/
 .env.*
 .wheel-verify/
 .DS_Store
+
+# Local benchmark data, predictions and reports (may contain private inputs)
+benchmark-results/

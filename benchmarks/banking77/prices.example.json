@@ -1,0 +1,14 @@
+{
+  "as_of": "2026-09-22",
+  "source": "REPLACE with the provider pricing URLs and any tariff assumptions",
+  "jev": {
+    "model": "jev-latest",
+    "input_per_million": null,
+    "output_per_million": null
+  },
+  "llm": {
+    "model": "REPLACE with the exact --model value",
+    "input_per_million": null,
+    "output_per_million": null
+  }
+}
