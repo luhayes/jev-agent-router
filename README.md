@@ -68,6 +68,11 @@ pricing assumptions, report interpretation, and quick-start notes.
 **The included demo and tests are synthetic; no measured model-performance or
 savings claims are shipped.**
 
+Run the same benchmark in your browser with the manual
+[GitHub Actions workflow](benchmarks/banking77/ACTIONS.md). It defaults to the
+offline demo; live modes use repository Secrets and require explicit paid-call
+confirmation. Reports are attached to the workflow run.
+
 ## Agent Skill (Codex / Claude Code / OpenClaw / pi / Hermes)
 
 The portable [jev-router Skill](skills/jev-router/SKILL.md) teaches when and how to

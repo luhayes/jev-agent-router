@@ -7,6 +7,10 @@ benchmark **never enables telemetry**, including when `JEVCALC_API_KEY` is set.
 The implementation and tests have been exercised with synthetic provider
 responses. **No live model accuracy, latency or savings result is included.**
 
+Prefer running in the cloud? See the [GitHub Actions guide](ACTIONS.md) for a
+manual workflow with an offline default, Secrets-based live calls, and downloadable
+reports.
+
 ## Quick start
 
 Goal: evaluate whether Jev + fallback can reduce classification costs while

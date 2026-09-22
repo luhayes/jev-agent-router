@@ -1,0 +1,120 @@
+name: BANKING77 benchmark
+run-name: BANKING77 / ${{ inputs.mode }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode (demo is offline; all other modes make paid API calls)'
+        type: choice
+        default: demo
+        options:
+          - demo
+          - smoke
+          - small
+          - standard
+          - full-test
+      model:
+        description: 'Live modes: OpenAI model ID supporting strict JSON schema'
+        type: string
+        default: ''
+      prices_json:
+        description: 'Benchmark modes: pricing JSON from prices.example.json, with verified rates'
+        type: string
+        default: ''
+      confirm_paid:
+        description: 'I authorize paid Jev/OpenAI calls for this run (required for live modes)'
+        type: boolean
+        default: false
+      measure_live:
+        description: 'Benchmark modes: also measure the actual cascade (additional paid calls)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: banking77-benchmark
+  cancel-in-progress: false
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require the default branch
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/$DEFAULT_BRANCH" ]]; then
+            echo 'Run this workflow from the default branch.'
+            exit 1
+          fi
+
+      - name: Check out the dispatched commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+
+      - name: Install benchmark
+        run: python -m pip install .
+
+      - name: Validate run settings
+        env:
+          BENCHMARK_MODE: ${{ inputs.mode }}
+          BENCHMARK_MODEL: ${{ inputs.model }}
+          BENCHMARK_PRICES_JSON: ${{ inputs.prices_json }}
+          BENCHMARK_CONFIRM_PAID: ${{ inputs.confirm_paid }}
+          BENCHMARK_MEASURE_LIVE: ${{ inputs.measure_live }}
+        run: python benchmarks/banking77/run_actions.py --check
+
+      - name: Run offline demo
+        if: inputs.mode == 'demo'
+        env:
+          BENCHMARK_MODE: demo
+        run: python benchmarks/banking77/run_actions.py
+
+      - name: Run paid evaluation
+        if: inputs.mode != 'demo'
+        env:
+          BENCHMARK_MODE: ${{ inputs.mode }}
+          BENCHMARK_MODEL: ${{ inputs.model }}
+          BENCHMARK_PRICES_JSON: ${{ inputs.prices_json }}
+          BENCHMARK_CONFIRM_PAID: ${{ inputs.confirm_paid }}
+          BENCHMARK_MEASURE_LIVE: ${{ inputs.measure_live }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python benchmarks/banking77/run_actions.py
+
+      - name: Upload reports and recovery data
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: banking77-${{ inputs.mode }}-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          if-no-files-found: ignore
+          include-hidden-files: false
+          path: |
+            benchmark-results/actions/status.json
+            benchmark-results/actions/provenance.json
+            benchmark-results/actions/prices.json
+            benchmark-results/actions/data/manifest.json
+            benchmark-results/actions/data/smoke.json
+            benchmark-results/actions/data/dev.json
+            benchmark-results/actions/data/test.json
+            benchmark-results/actions/**/run.json
+            benchmark-results/actions/**/results.jsonl
+            benchmark-results/actions/**/report.md
+            benchmark-results/actions/**/report.json
+            benchmark-results/actions/**/metrics.csv
+            benchmark-results/actions/**/errors.json
+            benchmark-results/actions/**/policy.json

@@ -75,3 +75,25 @@ An initial Ruff run found compact test formatting violations; formatting correct
 - Local downloaded data, run artifacts and reports are gitignored. No API keys,
   private workload data, generated benchmark results or JevCalc uploads are part
   of this change.
+
+## Manual GitHub Actions benchmark — 2026-09-22
+
+- Added a `workflow_dispatch`-only workflow with an offline default, default-branch
+  guard, read-only repository token, pinned actions, and secrets scoped to the
+  paid collection step. Reports and public recovery data use an artifact file
+  allowlist with 14-day retention.
+- Added validated run modes, explicit paid-call confirmation, optional live
+  cascade measurement, early stopping on smoke failures/no selected policy,
+  and a cooperative timeout to leave time for artifact upload.
+- Full local suite: **112 passed, 6 skipped**. The 15 new cases cover input and
+  tariff validation, workflow trigger/secret/upload restrictions, real collector
+  and analyzer orchestration with mock providers, early-stop call counts,
+  timeout status, and a no-network demo. Tests used the runtime-provided PyYAML
+  parser after the package index download timed out locally; PyYAML is declared
+  in the development extra for normal installations.
+- The actual Actions entry script's `--check` and offline demo completed locally.
+  Ruff and `git diff --check` passed. YAML was parsed and its security-critical
+  structure checked by tests; standalone actionlint could not be downloaded in
+  this environment, so no actionlint result is claimed.
+- No GitHub-hosted workflow or paid API evaluation has been run as part of this
+  verification. No provider credentials were available or added to the repository.
